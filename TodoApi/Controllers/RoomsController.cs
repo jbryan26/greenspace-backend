@@ -13,9 +13,9 @@ namespace TodoApi.Controllers
     [ApiController]
     public class RoomsController : ControllerBase
     {
-        private readonly RoomDbContext _context;
+        private readonly ReservationsDbContext _context;
 
-        public RoomsController(RoomDbContext context)
+        public RoomsController(ReservationsDbContext context)
         {
             _context = context;
         }

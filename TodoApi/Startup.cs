@@ -34,11 +34,14 @@ namespace TodoApi
                 .AllowAnyMethod()
                 .AllowAnyOrigin();
             }));
-            services.AddDbContext<ReservationDbContext>(opt =>
-            opt.UseInMemoryDatabase("ReservationsDbContext"));
+            /*services.AddDbContext<ReservationsDbContext>(opt =>
+            opt.UseInMemoryDatabase("ReservationsDbContext"));*/
 
-            services.AddDbContext<RoomDbContext>(opt =>
-            opt.UseInMemoryDatabase("RoomDbContext"));
+            services.AddDbContext<ReservationsDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("ReservationsDbConn")));
+
+            /*services.AddDbContext<RoomDbContext>(opt =>
+            opt.UseInMemoryDatabase("RoomDbContext"));*/
 
             services.AddControllers();
 

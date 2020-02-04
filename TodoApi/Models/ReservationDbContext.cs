@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using Microsoft.EntityFrameworkCore;
 
 namespace TodoApi.Models
@@ -12,3 +13,4 @@ namespace TodoApi.Models
         public DbSet<ReservationModel> ReservationModels { get; set; }
     }
 }
+*/
