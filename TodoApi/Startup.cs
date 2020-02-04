@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TodoApi.Models;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 
 namespace TodoApi
 {
@@ -28,6 +30,10 @@ namespace TodoApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSession(options => {
+                options.IdleTimeout = TimeSpan.FromMinutes(60);
+            });
+
             services.AddCors(o => o.AddPolicy("Policy", builder =>
             {
                 builder.AllowAnyHeader()
@@ -43,11 +49,16 @@ namespace TodoApi
             /*services.AddDbContext<RoomDbContext>(opt =>
             opt.UseInMemoryDatabase("RoomDbContext"));*/
 
-            services.AddControllers();
+           // services.AddControllers();
+
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddMvc(option => option.EnableEndpointRouting = false);
+          
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Title", Version = "v1" });
+
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Title", Description = "reservations api" , Version = "v1" });
             });
         }
 
@@ -62,6 +73,8 @@ namespace TodoApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            //auth
+            app.UseSession();
 
             app.UseAuthorization();
 
@@ -70,12 +83,15 @@ namespace TodoApi
                 endpoints.MapControllers();
             });
 
+            app.UseMvc();
             app.UseSwagger();
 
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Title V1");
             });
+
+           
         }
     }
 }
