@@ -15,5 +15,20 @@ namespace TodoApi.Models
         public DbSet<ReservationModel> ReservationModels { get; set; }
 
         public DbSet<RoomModel> RoomModels { get; set; }
+
+        public DbSet<Location> Locations { get; set; }
+
+        public DbSet<Field> Fields { get; set; }
+        
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            /*modelBuilder.Entity<Location>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+            });*/
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
