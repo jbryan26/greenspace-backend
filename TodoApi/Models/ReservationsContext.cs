@@ -19,8 +19,8 @@ namespace TodoApi.Models
         public DbSet<Location> Locations { get; set; }
 
         public DbSet<Field> Fields { get; set; }
-        
 
+        public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             /*modelBuilder.Entity<Location>(entity =>

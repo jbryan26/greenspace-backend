@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using TodoApi.Models;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -33,6 +36,37 @@ namespace TodoApi
             services.AddSession(options => {
                 options.IdleTimeout = TimeSpan.FromMinutes(60);
             });
+
+            //tokens
+            var SecretKey = Encoding.ASCII.GetBytes
+                ("YourKey-123-askasdaskdkqweqxzmczxckasd");
+            services.AddAuthentication(auth =>
+                {
+                    auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(token =>
+                {
+                    token.RequireHttpsMetadata = false;
+                    token.SaveToken = true;
+                    token.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        //Same Secret key will be used while creating the token
+                        IssuerSigningKey = new SymmetricSecurityKey(SecretKey),
+                        ValidateIssuer = false,
+                        //Usually, this is your application base URL
+                       // ValidIssuer = "https://somesite",
+                        ValidateAudience = false,
+                        //Here, we are creating and using JWT within the same application.
+                        //In this case, base URL is fine.
+                        //If the JWT is created using a web service, then this would be the consumer URL.
+                      //  ValidAudience = "https://somesite",
+                        RequireExpirationTime = true,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
 
             services.AddCors(o => o.AddPolicy("Policy", builder =>
             {
@@ -59,7 +93,19 @@ namespace TodoApi
             {
 
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Title", Description = "reservations api" , Version = "v1" });
+               
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey
+                });
             });
+
+            services.AddAuthorization(options => options.AddPolicy("OnlyCompanyAdmin", policy =>
+                policy.RequireClaim("AccessLevel", "CompanyAdmin"))
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,6 +124,20 @@ namespace TodoApi
             //auth
             app.UseSession();
 
+            // app.UseAuthorization();
+
+            //Add JWToken to all incoming HTTP Request Header
+            app.Use(async (context, next) =>
+            {
+                var JWToken = context.Session.GetString("JWToken");
+                if (!string.IsNullOrEmpty(JWToken))
+                {
+                    context.Request.Headers.Add("Authorization", "Bearer " + JWToken);
+                }
+                await next();
+            });
+            //Add JWToken Authentication service
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
