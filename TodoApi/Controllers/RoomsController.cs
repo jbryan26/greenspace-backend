@@ -46,7 +46,7 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        [Authorize(Policy = "OnlyCompanyAdmin")]
+       // [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<IActionResult> PutRoomModel(long id, RoomModel roomModel)
         {
             if (id != roomModel.Id)
@@ -79,7 +79,7 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        [Authorize(Policy = "OnlyCompanyAdmin")]
+      //  [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<ActionResult<RoomModel>> PostRoomModel(RoomModel roomModel)
         {
             _context.RoomModels.Add(roomModel);
@@ -90,7 +90,7 @@ namespace TodoApi.Controllers
 
         // DELETE: api/Rooms/5
         [HttpDelete("{id}")]
-        [Authorize(Policy = "OnlyCompanyAdmin")]
+      //  [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<ActionResult<RoomModel>> DeleteRoomModel(long id)
         {
             var roomModel = await _context.RoomModels.FindAsync(id);

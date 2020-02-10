@@ -43,7 +43,7 @@ namespace TodoApi.Controllers
             return location;
         }
 
-        [Authorize(Policy = "OnlyCompanyAdmin")]
+      //  [Authorize(Policy = "OnlyCompanyAdmin")]
         // PUT: api/Locations/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
@@ -80,7 +80,7 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        [Authorize(Policy = "OnlyCompanyAdmin")]
+     //   [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<ActionResult<Location>> PostLocation(Location location)
         {
             _context.Locations.Add(location);
