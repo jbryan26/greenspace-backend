@@ -12,7 +12,7 @@ namespace TodoApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "OnlyCompanyAdmin")]
+   
     public class LocationsController : ControllerBase
     {
         private readonly ReservationsDbContext _context;
@@ -43,6 +43,7 @@ namespace TodoApi.Controllers
             return location;
         }
 
+        [Authorize(Policy = "OnlyCompanyAdmin")]
         // PUT: api/Locations/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
@@ -79,6 +80,7 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
+        [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<ActionResult<Location>> PostLocation(Location location)
         {
             _context.Locations.Add(location);
@@ -89,6 +91,7 @@ namespace TodoApi.Controllers
 
         // DELETE: api/Locations/5
         [HttpDelete("{id}")]
+        [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<ActionResult<Location>> DeleteLocation(long id)
         {
             var location = await _context.Locations.FindAsync(id);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +46,7 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
+        [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<IActionResult> PutField(long id, Field @field)
         {
             if (id != @field.Id)
@@ -77,6 +79,7 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
+        [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<ActionResult<Field>> PostField(Field @field)
         {
             _context.Fields.Add(@field);
@@ -87,6 +90,7 @@ namespace TodoApi.Controllers
 
         // DELETE: api/Fields/5
         [HttpDelete("{id}")]
+        [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<ActionResult<Field>> DeleteField(long id)
         {
             var @field = await _context.Fields.FindAsync(id);
