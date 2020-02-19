@@ -91,7 +91,7 @@ namespace TodoApi.Controllers
 
         // DELETE: api/Locations/5
         [HttpDelete("{id}")]
-        [Authorize(Policy = "OnlyCompanyAdmin")]
+       // [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<ActionResult<Location>> DeleteLocation(long id)
         {
             var location = await _context.Locations.FindAsync(id);
