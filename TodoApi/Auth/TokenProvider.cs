@@ -22,7 +22,8 @@ namespace TodoApi.Auth
                // new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
                 new Claim("UserId", user.Id.ToString()),
                 new Claim("Email", user.Email),
-                new Claim("AccessLevel", "CompanyAdmin")
+                new Claim("AccessLevel", user.UserRole.ToString()),
+               
 
             };
             return claims;

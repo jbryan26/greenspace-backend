@@ -78,17 +78,26 @@ namespace Flexibot.Server.Api.Controllers
         }
 
         /// <summary>
-        /// Создание нового юзера и отправка ему рандомного пароля. Хеш от пароля хранится  в базе, сам пароль нигде не хранится
+        /// Creation of new user
         /// </summary>
         /// <param name="email"></param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        public async Task<IActionResult> CreateAccount(string email, string pass)
+        public async Task<IActionResult> CreateAccount(string email, string pass, UserRoles userRole)
         {
             if (_dbContext.Users.Any(user => user.Email.ToLower() == email.ToLower()))
                 return BadRequest("User with such email already exists");
+
+            //if requested creation of admins then checking rights
+            if (userRole == UserRoles.Admin || userRole == UserRoles.SiteAdmin)
+            {
+                if (User.FindFirst("AccessLevel").Value != UserRoles.Admin.ToString() &&
+                    User.FindFirst("AccessLevel").Value != UserRoles.SuperAdmin.ToString())
+                    return Unauthorized("you have to be Admin or SuperAdmin to create other admins");
+            }
+            
 
             //generate pass
             //todo: in prod make pass stronger
@@ -101,7 +110,8 @@ namespace Flexibot.Server.Api.Controllers
                 var usr = new User()
                 {
                     Email = email,
-                    PasswordHash = computedHash
+                    PasswordHash = computedHash,
+                    UserRole = userRole
                 };
                 _dbContext.Users.Add(usr);
                 _dbContext.SaveChanges();
