@@ -3,19 +3,21 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApi.Models;
 
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(ReservationsDbContext))]
-    partial class ReservationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200221134722_superadminSeed2")]
+    partial class superadminSeed2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.2")
+                .HasAnnotation("ProductVersion", "3.1.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -214,10 +216,10 @@ namespace TodoApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = -2L,
+                            Id = -1L,
                             Email = "admin",
-                            PasswordHash = "$RESERVHASH$V1$10000$yztiDYYJxPvdg76AwysQSmKLefIz7Qx4/qr55Hp+8NoXnhxy",
-                            UserRole = 2
+                            PasswordHash = "$RESERVHASH$V1$10000$GAxsDwod63x25TZpjulPwm2IShrGNKA7Jfk4Hwo5E54RDimP",
+                            UserRole = 0
                         });
                 });
 

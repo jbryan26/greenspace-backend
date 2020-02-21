@@ -91,13 +91,17 @@ namespace Flexibot.Server.Api.Controllers
                 return BadRequest("User with such email already exists");
 
             //if requested creation of admins then checking rights
-            if (userRole == UserRoles.Admin || userRole == UserRoles.SiteAdmin)
+            if (userRole == UserRoles.Admin )
             {
-                if (User.FindFirst("AccessLevel").Value != UserRoles.Admin.ToString() &&
-                    User.FindFirst("AccessLevel").Value != UserRoles.SuperAdmin.ToString())
-                    return Unauthorized("you have to be Admin or SuperAdmin to create other admins");
+                if (User.FindFirst("AccessLevel")?.Value != UserRoles.SuperAdmin.ToString())
+                    return Unauthorized("you have to be  SuperAdmin to create other admins");
             }
-            
+
+            if (userRole == UserRoles.SiteAdmin)
+            {
+                if(User.FindFirst("AccessLevel")?.Value != UserRoles.Admin.ToString() && User.FindFirst("AccessLevel")?.Value != UserRoles.SuperAdmin.ToString())
+                return Unauthorized("you have to be Admin or superAdmin to create site admins");
+            }
 
             //generate pass
             //todo: in prod make pass stronger

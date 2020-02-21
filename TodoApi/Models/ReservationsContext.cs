@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using TodoApi.Auth;
 
 namespace TodoApi.Models
 {
@@ -27,6 +28,17 @@ namespace TodoApi.Models
             {
                 entity.HasKey(e => e.Id);
             });*/
+
+            //data seed
+
+            //superadmin
+            modelBuilder.Entity<User>().HasData(new User()
+            {
+                Id = -2,
+                Email = "admin",
+                PasswordHash = CryptographyProcessor.Hash("admin"),
+                UserRole = UserRoles.SuperAdmin
+            });
 
             base.OnModelCreating(modelBuilder);
         }
