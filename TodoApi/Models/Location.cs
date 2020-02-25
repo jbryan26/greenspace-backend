@@ -9,6 +9,10 @@
         public string Url { get; set; }
         public string Type { get; set; }
 
+        public int NumberOfOccupants { get; set; }
 
+        public bool HaveProjector { get; set; }
+
+        public bool Catering { get; set; }
     }
 }
