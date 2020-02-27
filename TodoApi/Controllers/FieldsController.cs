@@ -23,9 +23,17 @@ namespace TodoApi.Controllers
 
         // GET: api/Fields
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Field>>> GetFields()
+        public async Task<ActionResult<IEnumerable<Field>>> GetFields(ParentType parentType = ParentType.NotSet)
         {
-            return await _context.Fields.ToListAsync();
+
+
+            if (parentType != ParentType.NotSet)
+            {
+                //todo: seems like ef core can convert comparasion of enum to sql (sic!) so doing it on client for now
+                // return  _context.Fields.Where((field, i) => field.ParentType == parentType).ToListAsync();
+                return _context.Fields.AsEnumerable().Where((field, i) => field.ParentType == parentType).ToList();
+            }
+            else return await _context.Fields.ToListAsync();
         }
 
         // GET: api/Fields/5

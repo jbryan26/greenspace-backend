@@ -40,6 +40,12 @@ namespace TodoApi.Models
                 UserRole = UserRoles.SuperAdmin
             });
 
+            modelBuilder.Entity<Field>().HasIndex(field => field.ParentType);
+
+            modelBuilder.Entity<Field>()
+                .Property(c => c.ParentType)
+                .HasConversion<int>();
+
             base.OnModelCreating(modelBuilder);
         }
     }
