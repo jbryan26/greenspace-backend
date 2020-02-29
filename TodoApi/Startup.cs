@@ -91,13 +91,16 @@ namespace TodoApi
             services.AddMvc(option => option.EnableEndpointRouting = false);
             /*services.AddMvc(options =>
             {
-                
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                options.SerializerSettings.Converters.Add(new StringEnumConverter());
+              //  options.SerializerSettings.Converters.Add(new StringEnumConverter());
             });*/
+
+
 
             services.AddControllers().AddJsonOptions(options =>
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+            services.AddMvc().AddNewtonsoftJson(options => { options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore; });
 
             services.AddSwaggerGen(c =>
             {

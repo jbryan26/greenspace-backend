@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TodoApi.DTO;
 using TodoApi.Models;
 
 namespace TodoApi.Controllers
@@ -44,18 +46,38 @@ namespace TodoApi.Controllers
             return location;
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Location>> FilterLocations(long id)
+        [HttpPost]
+        [Route("FilterLocations")]
+        public async Task<ActionResult<List<Location>>> FilterLocations(Filter filter)
         {
-            var location = await _context.Locations.Include(location => location.FieldValues)
-                .ThenInclude(values => values.Field).FirstOrDefaultAsync(location1 => location1.Id == id);
+            //todo: MATERILIZING FOR NOW!
 
-            if (location == null)
+            var exp = await _context.Locations.Include(location => location.FieldValues)
+                .ThenInclude(values => values.Field).ToListAsync();
+
+            /*var exp = _context.Locations.Include(location => location.FieldValues)
+                .ThenInclude(values => values.Field).ToList().Where(((location1, i) =>
+                    location1.FieldValues.Any(value => value.Value == "true" && value.Field.Name == "HaveProjector")));*/
+
+            //IQueryable<Location> exp = null;
+            foreach (var fld in filter.Fields)
+            {
+                exp = exp.Where((location1, i) =>
+                    location1.FieldValues.Any(value => value.Value == fld.Value && value.Field.Name == fld.Key)).ToList();/*.Include(location => location.FieldValues)
+                    .ThenInclude(values => values.Field)*/;
+            }
+
+            /*Expression<Func<Location, bool>> expr = new Expression<Func<Location, bool>>();
+            var location = await _context.Locations.Include(location => location.FieldValues)
+                .ThenInclude(values => values.Field).Where(expr).ToListAsync();*/
+            var res =  exp.ToList();
+
+            if (res == null)
             {
                 return NotFound();
             }
 
-            return location;
+            return res;
         }
 
         //  [Authorize(Policy = "OnlyCompanyAdmin")]

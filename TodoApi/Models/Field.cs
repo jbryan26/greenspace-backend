@@ -10,6 +10,8 @@ namespace TodoApi.Models
     {
         public long Id { get; set; }
         public string Name { get; set; }
+
+        public string DisplayText { get; set; }
        // public string DataType { get; set; }
 
         public string GroupsFilter { get; set; }
