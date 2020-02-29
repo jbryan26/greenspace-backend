@@ -44,7 +44,21 @@ namespace TodoApi.Controllers
             return location;
         }
 
-      //  [Authorize(Policy = "OnlyCompanyAdmin")]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Location>> FilterLocations(long id)
+        {
+            var location = await _context.Locations.Include(location => location.FieldValues)
+                .ThenInclude(values => values.Field).FirstOrDefaultAsync(location1 => location1.Id == id);
+
+            if (location == null)
+            {
+                return NotFound();
+            }
+
+            return location;
+        }
+
+        //  [Authorize(Policy = "OnlyCompanyAdmin")]
         // PUT: api/Locations/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
