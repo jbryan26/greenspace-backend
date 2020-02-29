@@ -26,14 +26,15 @@ namespace TodoApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Location>>> GetLocations()
         {
-            return await _context.Locations.ToListAsync();
+            return await _context.Locations.Include(location => location.FieldValues).ThenInclude(values => values.Field).ToListAsync();
         }
 
         // GET: api/Locations/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Location>> GetLocation(long id)
         {
-            var location = await _context.Locations.FindAsync(id);
+            var location = await _context.Locations.Include(location => location.FieldValues)
+                            .ThenInclude(values => values.Field).FirstOrDefaultAsync(location1 => location1.Id == id);
 
             if (location == null)
             {
@@ -55,7 +56,11 @@ namespace TodoApi.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(location).State = EntityState.Modified;
+            /*_context.Entry(location).State = EntityState.Modified;
+
+            _context.Entry(location.FieldValues).State = EntityState.Added;*/
+            _context.Update(location);
+            await _context.SaveChangesAsync();
 
             try
             {

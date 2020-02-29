@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApi.Models;
 
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(ReservationsDbContext))]
-    partial class ReservationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200227183245_fieldIdchange3")]
+    partial class fieldIdchange3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,7 +57,10 @@ namespace TodoApi.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long>("FieldId")
+                    b.Property<int>("FieldId")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("FieldId1")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("LocationId")
@@ -66,7 +71,7 @@ namespace TodoApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FieldId");
+                    b.HasIndex("FieldId1");
 
                     b.HasIndex("LocationId");
 
@@ -255,7 +260,7 @@ namespace TodoApi.Migrations
                         {
                             Id = -2L,
                             Email = "admin",
-                            PasswordHash = "$RESERVHASH$V1$10000$QmjdEkN6tsSPW1fQ/mjxF4+p08P7j6A8Es1711Gvkvaq0P5/",
+                            PasswordHash = "$RESERVHASH$V1$10000$4KS3HqtW8Q3gjFDbcIe4plsfX1EuYaJAjCiXcroF1bd4t5Mv",
                             UserRole = 2
                         });
                 });
@@ -264,9 +269,7 @@ namespace TodoApi.Migrations
                 {
                     b.HasOne("TodoApi.Models.Field", "Field")
                         .WithMany()
-                        .HasForeignKey("FieldId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FieldId1");
 
                     b.HasOne("TodoApi.Models.Location", null)
                         .WithMany("FieldValues")

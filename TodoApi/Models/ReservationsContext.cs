@@ -42,6 +42,8 @@ namespace TodoApi.Models
 
             modelBuilder.Entity<Field>().HasIndex(field => field.ParentType);
 
+           // modelBuilder.Entity<Field>().HasOne<FieldValue>().WithMany(value => value.FieldId)
+
             modelBuilder.Entity<Field>()
                 .Property(c => c.ParentType)
                 .HasConversion<int>();
