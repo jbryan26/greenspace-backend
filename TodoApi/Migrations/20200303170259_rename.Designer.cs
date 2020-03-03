@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApi.Models;
 
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(ReservationsDbContext))]
-    partial class ReservationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200303170259_rename")]
+    partial class rename
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,15 +65,6 @@ namespace TodoApi.Migrations
 
                     b.Property<long?>("LocationId")
                         .HasColumnType("bigint");
-
-                    b.Property<bool>("ValueBool")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("ValueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ValueInt")
-                        .HasColumnType("int");
 
                     b.Property<string>("ValueString")
                         .HasColumnType("nvarchar(max)");
@@ -267,7 +260,7 @@ namespace TodoApi.Migrations
                         {
                             Id = -2L,
                             Email = "admin",
-                            PasswordHash = "$RESERVHASH$V1$10000$lK/yuRSlL4W4AecH2REiYtToVYx1spns12UZQWtB0nBhCMZ7",
+                            PasswordHash = "$RESERVHASH$V1$10000$r5g33nPlvZI1ZxZpnBb9Cewp35PHnE3ZPYNv+PHP53Kz/m4u",
                             UserRole = 2
                         });
                 });

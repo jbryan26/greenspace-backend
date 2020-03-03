@@ -62,9 +62,33 @@ namespace TodoApi.Controllers
             //IQueryable<Location> exp = null;
             foreach (var fld in filter.Fields)
             {
-                exp = exp.Where((location1, i) =>
-                    location1.FieldValues.Any(value => value.Value == fld.Value && value.Field.Name == fld.Key)).ToList();/*.Include(location => location.FieldValues)
-                    .ThenInclude(values => values.Field)*/;
+                if (fld.Condition == Condition.Eq)
+                {
+                    exp = exp.Where((location1, i) =>
+                        location1.FieldValues.Any(value => value.ValueString == fld.Value && value.Field.Name == fld.Name)).ToList();/*.Include(location => location.FieldValues)
+                    .ThenInclude(values => values.Field)*/
+                    ;
+                }
+
+                //numeric
+
+                if (fld.Condition == Condition.Less)
+                {
+                    /*exp = exp.Where((location1, i) =>
+                        location1.FieldValues.Any(value => value.Value < fld.Value && value.Field.Name == fld.Name)).ToList();/*.Include(location => location.FieldValues)
+                    .ThenInclude(values => values.Field)#1#
+                    ;*/
+                }
+
+                if (fld.Condition == Condition.Eq)
+                {
+                    exp = exp.Where((location1, i) =>
+                        location1.FieldValues.Any(value => value.ValueString == fld.Value && value.Field.Name == fld.Name)).ToList();/*.Include(location => location.FieldValues)
+                    .ThenInclude(values => values.Field)*/
+                    ;
+                }
+
+
             }
 
             /*Expression<Func<Location, bool>> expr = new Expression<Func<Location, bool>>();

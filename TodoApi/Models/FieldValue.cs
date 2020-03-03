@@ -17,7 +17,15 @@ namespace TodoApi.Models
         /// <summary>
         /// serialized value
         /// </summary>
-        public string Value { get; set; }
+        public string ValueString { get; set; }
+
+        public bool ValueBool { get; set; }
+
+        public int ValueInt { get; set; }
+
+        public DateTime ValueDate { get; set; }
+
+
 
       
 
