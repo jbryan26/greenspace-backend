@@ -62,32 +62,99 @@ namespace TodoApi.Controllers
             //IQueryable<Location> exp = null;
             foreach (var fld in filter.Fields)
             {
-                if (fld.Condition == Condition.Eq)
+                if (fld.Value is string)
                 {
-                    exp = exp.Where((location1, i) =>
-                        location1.FieldValues.Any(value => value.ValueString == fld.Value && value.Field.Name == fld.Name)).ToList();/*.Include(location => location.FieldValues)
+                    if (fld.Condition == Condition.Eq)
+                    {
+                        exp = exp.Where((location1, i) =>
+                                location1.FieldValues.Any(value =>
+                                    value.ValueString.Contains(fld.Value.ToString()) && value.Field.Name == fld.Name))
+                            .ToList(); /*.Include(location => location.FieldValues)
                     .ThenInclude(values => values.Field)*/
-                    ;
+                        ;
+                    }
+                    else return BadRequest("Can't do this operation with string field");
                 }
+
+                if (fld.Value is long)
+                {
+                    if (fld.Condition == Condition.Eq)
+                    {
+                        exp = exp.Where((location1, i) =>
+                                location1.FieldValues.Any(value =>
+                                    value.ValueInt == (long)fld.Value && value.Field.Name == fld.Name))
+                            .ToList(); /*.Include(location => location.FieldValues)
+                    .ThenInclude(values => values.Field)*/
+                        ;
+                    }
+                    if (fld.Condition == Condition.Less)
+                    {
+                        exp = exp.Where((location1, i) =>
+                                location1.FieldValues.Any(value =>
+                                    value.ValueInt < (long)fld.Value && value.Field.Name == fld.Name))
+                            .ToList(); 
+                        ;
+                    }
+                    if (fld.Condition == Condition.More)
+                    {
+                        exp = exp.Where((location1, i) =>
+                                location1.FieldValues.Any(value =>
+                                    value.ValueInt > (long)fld.Value && value.Field.Name == fld.Name))
+                            .ToList(); 
+                        ;
+                    }
+                }
+                if (fld.Value is bool)
+                {
+                    if (fld.Condition == Condition.Eq)
+                    {
+                        exp = exp.Where((location1, i) =>
+                                location1.FieldValues.Any(value =>
+                                    value.ValueBool == (bool)fld.Value && value.Field.Name == fld.Name))
+                            .ToList(); /*.Include(location => location.FieldValues)
+                    .ThenInclude(values => values.Field)*/
+                        ;
+                    }
+                    else
+                    {
+                        return BadRequest("Can't do this operation with bool field");
+                    }
+                }
+                if (fld.Value is DateTime)
+                {
+                    if (fld.Condition == Condition.Eq)
+                    {
+                        exp = exp.Where((location1, i) =>
+                                location1.FieldValues.Any(value =>
+                                    value.ValueDate == (DateTime)fld.Value && value.Field.Name == fld.Name))
+                            .ToList(); /*.Include(location => location.FieldValues)
+                    .ThenInclude(values => values.Field)*/
+                        ;
+                    }
+                    if (fld.Condition == Condition.Less)
+                    {
+                        exp = exp.Where((location1, i) =>
+                                location1.FieldValues.Any(value =>
+                                    value.ValueDate < (DateTime)fld.Value && value.Field.Name == fld.Name))
+                            .ToList();
+                        ;
+                    }
+                    if (fld.Condition == Condition.More)
+                    {
+                        exp = exp.Where((location1, i) =>
+                                location1.FieldValues.Any(value =>
+                                    value.ValueDate > (DateTime)fld.Value && value.Field.Name == fld.Name))
+                            .ToList();
+                        ;
+                    }
+                }
+
+
+                
 
                 //numeric
 
-                if (fld.Condition == Condition.Less)
-                {
-                    /*exp = exp.Where((location1, i) =>
-                        location1.FieldValues.Any(value => value.Value < fld.Value && value.Field.Name == fld.Name)).ToList();/*.Include(location => location.FieldValues)
-                    .ThenInclude(values => values.Field)#1#
-                    ;*/
-                }
-
-                if (fld.Condition == Condition.Eq)
-                {
-                    exp = exp.Where((location1, i) =>
-                        location1.FieldValues.Any(value => value.ValueString == fld.Value && value.Field.Name == fld.Name)).ToList();/*.Include(location => location.FieldValues)
-                    .ThenInclude(values => values.Field)*/
-                    ;
-                }
-
+        
 
             }
 
