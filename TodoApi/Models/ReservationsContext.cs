@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Auth;
+using TodoApi.Models;
 
 namespace TodoApi.Models
 {
@@ -22,6 +23,12 @@ namespace TodoApi.Models
         public DbSet<Field> Fields { get; set; }
 
         public DbSet<User> Users { get; set; }
+
+        public DbSet<Region> Regions { get; set; }
+
+        public DbSet<Site> Sites { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             /*modelBuilder.Entity<Location>(entity =>
@@ -50,5 +57,11 @@ namespace TodoApi.Models
 
             base.OnModelCreating(modelBuilder);
         }
+
+
+        public DbSet<TodoApi.Models.Building> Building { get; set; }
+
+
+        public DbSet<TodoApi.Models.Floor> Floor { get; set; }
     }
 }

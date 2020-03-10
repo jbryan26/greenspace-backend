@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,13 +8,14 @@ using Microsoft.AspNetCore.Mvc;
 using TodoApi.Auth;
 using TodoApi.Models;
 
-namespace Flexibot.Server.Api.Controllers
+namespace TodoApi.Controllers
 {
     /// <summary>
     /// Authentication and authorisation controller.
     /// </summary>
     [ApiConventionType(typeof(DefaultApiConventions))]
     [Route("api/[controller]/[action]")]
+
     public class AuthController : Controller
     {
         private const string passSalt = "mysuperrandomsalt";

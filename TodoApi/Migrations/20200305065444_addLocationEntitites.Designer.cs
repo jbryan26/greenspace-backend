@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApi.Models;
 
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(ReservationsDbContext))]
-    partial class ReservationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200305065444_addLocationEntitites")]
+    partial class addLocationEntitites
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,7 +31,7 @@ namespace TodoApi.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("SiteId")
+                    b.Property<long?>("SiteId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -84,9 +86,6 @@ namespace TodoApi.Migrations
                     b.Property<long?>("LocationId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("RoomModelId")
-                        .HasColumnType("bigint");
-
                     b.Property<bool>("ValueBool")
                         .HasColumnType("bit");
 
@@ -105,8 +104,6 @@ namespace TodoApi.Migrations
 
                     b.HasIndex("LocationId");
 
-                    b.HasIndex("RoomModelId");
-
                     b.ToTable("FieldValue");
                 });
 
@@ -117,7 +114,7 @@ namespace TodoApi.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long>("BuildingId")
+                    b.Property<long?>("BuildingId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Name")
@@ -276,7 +273,7 @@ namespace TodoApi.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long>("FloorId")
+                    b.Property<long?>("FloorId")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("HasDockingStation")
@@ -352,7 +349,7 @@ namespace TodoApi.Migrations
                         {
                             Id = -2L,
                             Email = "admin",
-                            PasswordHash = "$RESERVHASH$V1$10000$rkOS3UJX0MZb/c7asZBOavsonMyVXp39X6wzyrIwVqRuTBaj",
+                            PasswordHash = "$RESERVHASH$V1$10000$MBCS2I9ngfG4P/vwsdMaxcI1PnNjXq+wBsqEzk49JgThOLu8",
                             UserRole = 2
                         });
                 });
@@ -360,10 +357,8 @@ namespace TodoApi.Migrations
             modelBuilder.Entity("TodoApi.Models.Building", b =>
                 {
                     b.HasOne("TodoApi.Models.Site", null)
-                        .WithMany("Buildings")
-                        .HasForeignKey("SiteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Building")
+                        .HasForeignKey("SiteId");
                 });
 
             modelBuilder.Entity("TodoApi.Models.FieldValue", b =>
@@ -377,19 +372,13 @@ namespace TodoApi.Migrations
                     b.HasOne("TodoApi.Models.Location", null)
                         .WithMany("FieldValues")
                         .HasForeignKey("LocationId");
-
-                    b.HasOne("TodoApi.Models.RoomModel", null)
-                        .WithMany("FieldValues")
-                        .HasForeignKey("RoomModelId");
                 });
 
             modelBuilder.Entity("TodoApi.Models.Floor", b =>
                 {
                     b.HasOne("TodoApi.Models.Building", null)
                         .WithMany("Floors")
-                        .HasForeignKey("BuildingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BuildingId");
                 });
 
             modelBuilder.Entity("TodoApi.Models.FoodDetailsItem", b =>
@@ -410,9 +399,7 @@ namespace TodoApi.Migrations
                 {
                     b.HasOne("TodoApi.Models.Floor", null)
                         .WithMany("Rooms")
-                        .HasForeignKey("FloorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FloorId");
                 });
 
             modelBuilder.Entity("TodoApi.Models.Site", b =>

@@ -3,7 +3,8 @@
     public enum ParentType
     {
         NotSet ,
-        Location
+        Location,
+        Room
 
     }
 }

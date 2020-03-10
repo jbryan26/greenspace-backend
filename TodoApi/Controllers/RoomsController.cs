@@ -25,14 +25,15 @@ namespace TodoApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RoomModel>>> GetRoomModels()
         {
-            return await _context.RoomModels.ToListAsync();
+            return await _context.RoomModels.Include(location => location.FieldValues).ThenInclude(values => values.Field).ToListAsync();
         }
 
         // GET: api/Rooms/5
         [HttpGet("{id}")]
         public async Task<ActionResult<RoomModel>> GetRoomModel(long id)
         {
-            var roomModel = await _context.RoomModels.FindAsync(id);
+            var roomModel = await _context.RoomModels.Include(location => location.FieldValues)
+                .ThenInclude(values => values.Field).FirstOrDefaultAsync(location1 => location1.Id == id);
 
             if (roomModel == null)
             {

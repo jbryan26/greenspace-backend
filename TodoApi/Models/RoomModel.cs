@@ -14,5 +14,9 @@ namespace TodoApi.Models
         public bool HasDualMonitors { get; set; }
         public bool IsFrontDesk { get; set; }
         public int SeatingCapacity { get; set; }
+
+        public long FloorId { get; set; }
+
+        public ICollection<FieldValue> FieldValues { get; set; }
     }
 }
