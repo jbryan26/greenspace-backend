@@ -19,13 +19,14 @@ namespace TodoApi.Controllers
     public class AuthController : Controller
     {
         private const string passSalt = "mysuperrandomsalt";
-        private readonly ReservationsDbContext _dbContext;
-      //  private readonly MailJetService _mailService;
 
-        public AuthController(ReservationsDbContext dbContext/*, MailJetService mailService*/)
+        private readonly ReservationsDbContext _dbContext;
+        //  private readonly MailJetService _mailService;
+
+        public AuthController(ReservationsDbContext dbContext /*, MailJetService mailService*/)
         {
             _dbContext = dbContext;
-           // _mailService = mailService;
+            // _mailService = mailService;
         }
 
         /// <summary>
@@ -34,9 +35,9 @@ namespace TodoApi.Controllers
         /// <param name="logAndPass">login and password struct</param>
         /// <returns>token</returns>
         [HttpPost]
-        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(LoginResult), 200)]
         [ProducesResponseType(404)]
-        public IActionResult Login([FromBody]LogAndPass logAndPass)
+        public IActionResult Login([FromBody] LogAndPass logAndPass)
         {
             var tokenProvider = new TokenProvider();
 
@@ -48,7 +49,13 @@ namespace TodoApi.Controllers
             else
             {
                 HttpContext.Session.SetString("JWToken", token);
-                return Ok(token);
+                user.PasswordHash = "";
+
+                return Ok(new LoginResult()
+                {
+                    Token = token,
+                    UserInfo = user
+                });
             }
         }
 
@@ -91,7 +98,7 @@ namespace TodoApi.Controllers
                 return BadRequest("User with such email already exists");
 
             //if requested creation of admins then checking rights
-            if (userRole == UserRoles.Admin )
+            if (userRole == UserRoles.Admin)
             {
                 if (User.FindFirst("AccessLevel")?.Value != UserRoles.SuperAdmin.ToString())
                     return Unauthorized("you have to be  SuperAdmin to create other admins");
@@ -99,28 +106,29 @@ namespace TodoApi.Controllers
 
             if (userRole == UserRoles.SiteAdmin)
             {
-                if(User.FindFirst("AccessLevel")?.Value != UserRoles.Admin.ToString() && User.FindFirst("AccessLevel")?.Value != UserRoles.SuperAdmin.ToString())
-                return Unauthorized("you have to be Admin or superAdmin to create site admins");
+                if (User.FindFirst("AccessLevel")?.Value != UserRoles.Admin.ToString() &&
+                    User.FindFirst("AccessLevel")?.Value != UserRoles.SuperAdmin.ToString())
+                    return Unauthorized("you have to be Admin or superAdmin to create site admins");
             }
 
             //generate pass
             //todo: in prod make pass stronger
-           // var pass = Guid.NewGuid().ToString("n").Substring(0, 3);
+            // var pass = Guid.NewGuid().ToString("n").Substring(0, 3);
             var computedHash = CryptographyProcessor.Hash(pass);
 
             //send email
-         //  var res = await _mailService.SendRegistrationMail(email, pass);
-            
-                var usr = new User()
-                {
-                    Email = email,
-                    PasswordHash = computedHash,
-                    UserRole = userRole
-                };
-                _dbContext.Users.Add(usr);
-                _dbContext.SaveChanges();
+            //  var res = await _mailService.SendRegistrationMail(email, pass);
 
-                return Ok(usr);
+            var usr = new User()
+            {
+                Email = email,
+                PasswordHash = computedHash,
+                UserRole = userRole
+            };
+            _dbContext.Users.Add(usr);
+            _dbContext.SaveChanges();
+
+            return Ok(usr);
 
         }
 
@@ -144,5 +152,12 @@ namespace TodoApi.Controllers
             public string Login { get; set; }
             public string Password { get; set; }
         }
-    }
+
+        public class LoginResult
+        {
+            public string Token { get; set; }
+
+            public User UserInfo { get; set; }
+        }
+}
 }
