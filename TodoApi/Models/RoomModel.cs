@@ -17,6 +17,8 @@ namespace TodoApi.Models
 
         public long FloorId { get; set; }
 
+        public string ImageUrl { get; set; }
+
         public ICollection<FieldValue> FieldValues { get; set; }
     }
 }
