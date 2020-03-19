@@ -11,7 +11,7 @@ namespace TodoApi.Models
 
         public long BuildingId { get; set; }
 
-        public string ImageUrl { get; set; }
+       
 
         [JsonProperty("items")]
         public ICollection<RoomModel> Rooms { get; set; }

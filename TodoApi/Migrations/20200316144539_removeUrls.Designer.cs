@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApi.Models;
 
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(ReservationsDbContext))]
-    partial class ReservationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200316144539_removeUrls")]
+    partial class removeUrls
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -297,8 +299,8 @@ namespace TodoApi.Migrations
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ResourceType")
-                        .HasColumnType("int");
+                    b.Property<string>("ResourceType")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SeatingCapacity")
                         .HasColumnType("int");
@@ -355,7 +357,7 @@ namespace TodoApi.Migrations
                         {
                             Id = -2L,
                             Email = "admin",
-                            PasswordHash = "$RESERVHASH$V1$10000$QKOiuxlxYRMVy9mNMiyfQSq19NqHvvze9rYCFZf219xfzXKf",
+                            PasswordHash = "$RESERVHASH$V1$10000$mMYz0ZkXVPAbiR1E5dPgFHPsvB/fFDW8wSXdiWXhrYqT8Nto",
                             UserRole = 2
                         });
                 });

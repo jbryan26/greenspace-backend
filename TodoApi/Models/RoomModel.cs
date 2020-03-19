@@ -7,7 +7,7 @@ namespace TodoApi.Models
     {
         public long Id { get; set; }
         public string Location { get; set; }
-        public string ResourceType { get; set; }
+        public ResourceType ResourceType { get; set; }
         public List<RoomFeaturesItem> RoomFeatures { get; set; }
         public bool IsCornerDesk { get; set; }
         public bool HasDockingStation { get; set; }
