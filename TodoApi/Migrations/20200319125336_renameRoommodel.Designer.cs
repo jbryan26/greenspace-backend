@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApi.Models;
 
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(ReservationsDbContext))]
-    partial class ReservationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200319125336_renameRoommodel")]
+    partial class renameRoommodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -287,7 +289,7 @@ namespace TodoApi.Migrations
 
                     b.HasIndex("FloorId");
 
-                    b.ToTable("Rooms");
+                    b.ToTable("RoomModels");
                 });
 
             modelBuilder.Entity("TodoApi.Models.RoomFeaturesItem", b =>
@@ -355,7 +357,7 @@ namespace TodoApi.Migrations
                         {
                             Id = -2L,
                             Email = "admin",
-                            PasswordHash = "$RESERVHASH$V1$10000$cAmudEA9nop+rovELUfIDC+Kevvhxp/OyxwLeOTc07U7XWYh",
+                            PasswordHash = "$RESERVHASH$V1$10000$GT6wc5S64Doa0PSWv6TtqwIqOB6aSFg0IVELoBPISIX2RjMQ",
                             UserRole = 2
                         });
                 });

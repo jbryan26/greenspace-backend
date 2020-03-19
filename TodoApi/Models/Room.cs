@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TodoApi.Models
 {
-    public class RoomModel
+    public class Room
     {
         public long Id { get; set; }
         public string Location { get; set; }
@@ -16,6 +16,8 @@ namespace TodoApi.Models
         public int SeatingCapacity { get; set; }
 
         public long FloorId { get; set; }
+
+
 
         public string ImageUrl { get; set; }
 

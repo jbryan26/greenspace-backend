@@ -14,6 +14,6 @@ namespace TodoApi.Models
        
 
         [JsonProperty("items")]
-        public ICollection<RoomModel> Rooms { get; set; }
+        public ICollection<Room> Rooms { get; set; }
     }
 }

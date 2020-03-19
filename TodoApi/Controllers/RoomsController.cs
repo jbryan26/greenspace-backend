@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TodoApi.DTO;
 using TodoApi.Models;
 
 namespace TodoApi.Controllers
@@ -23,16 +24,54 @@ namespace TodoApi.Controllers
 
         // GET: api/Rooms
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RoomModel>>> GetRoomModels()
+        public async Task<ActionResult<IEnumerable<Room>>> GetRoom()
         {
-            return await _context.RoomModels.Include(location => location.FieldValues).ThenInclude(values => values.Field).ToListAsync();
+            return await _context.Rooms.Include(location => location.FieldValues).ThenInclude(values => values.Field).ToListAsync();
+        }
+
+        // GET: api/Rooms
+        [HttpPost]
+        [Route("FilterRooms")]
+        public async Task<ActionResult<IEnumerable<Room>>> FilterRooms(Filter filter)
+        {
+            var roomsfromRegions = _context.Regions
+                .Include(region => region.Sites)
+                .ThenInclude(site => site.Buildings)
+                .ThenInclude(building => building.Floors)
+                .ThenInclude(floor => floor.Rooms)
+                .ToList()
+                .Where((region, i) => filter.RegionIds.Contains(region.Id)).SelectMany(region => region.Sites.SelectMany(site => site.Buildings.SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms)))).ToList();
+
+            var roomsfromSites = _context.Sites
+                .Include(site => site.Buildings)
+                .ThenInclude(building => building.Floors)
+                .ThenInclude(floor => floor.Rooms)
+                .ToList()
+                .Where((site, i) => filter.SiteIds.Contains(site.Id)).SelectMany(site => site.Buildings.SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms))).ToList();
+
+            var roomsfromBuildings = _context.Building
+                .Include(building => building.Floors)
+                .ThenInclude(floor => floor.Rooms)
+                .ToList()
+                .Where((site, i) => filter.BuildingIds.Contains(site.Id)).SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms)).ToList();
+
+            var roomsfromFloors = _context.Floor
+                .Include(floor => floor.Rooms)
+                .ToList()
+                .Where((site, i) => filter.FloorIds.Contains(site.Id)).SelectMany(floor => floor.Rooms).ToList();
+
+           var res = roomsfromRegions.Union(roomsfromSites).Union(roomsfromBuildings).Union(roomsfromFloors);
+
+            /*var all = await _context.Rooms.Include(location => location.FieldValues).ThenInclude(values => values.Field).ToListAsync();
+            return all.Where((model, i) => filter.FloorIds.Contains(model.FloorId)).ToList();*/
+            return Ok(res);
         }
 
         // GET: api/Rooms/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<RoomModel>> GetRoomModel(long id)
+        public async Task<ActionResult<Room>> GetRoom(long id)
         {
-            var roomModel = await _context.RoomModels.Include(location => location.FieldValues)
+            var roomModel = await _context.Rooms.Include(location => location.FieldValues)
                 .ThenInclude(values => values.Field).FirstOrDefaultAsync(location1 => location1.Id == id);
 
             if (roomModel == null)
@@ -48,7 +87,7 @@ namespace TodoApi.Controllers
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
        // [Authorize(Policy = "OnlyCompanyAdmin")]
-        public async Task<IActionResult> PutRoomModel(long id, RoomModel roomModel)
+        public async Task<IActionResult> PutRoom(long id, Room roomModel)
         {
             if (id != roomModel.Id)
             {
@@ -63,7 +102,7 @@ namespace TodoApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!RoomModelExists(id))
+                if (!RoomExists(id))
                 {
                     return NotFound();
                 }
@@ -81,34 +120,34 @@ namespace TodoApi.Controllers
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
       //  [Authorize(Policy = "OnlyCompanyAdmin")]
-        public async Task<ActionResult<RoomModel>> PostRoomModel(RoomModel roomModel)
+        public async Task<ActionResult<Room>> PostRoom(Room roomModel)
         {
-            _context.RoomModels.Add(roomModel);
+            _context.Rooms.Add(roomModel);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRoomModel", new { id = roomModel.Id }, roomModel);
+            return CreatedAtAction("GetRoom", new { id = roomModel.Id }, roomModel);
         }
 
         // DELETE: api/Rooms/5
         [HttpDelete("{id}")]
       //  [Authorize(Policy = "OnlyCompanyAdmin")]
-        public async Task<ActionResult<RoomModel>> DeleteRoomModel(long id)
+        public async Task<ActionResult<Room>> DeleteRoom(long id)
         {
-            var roomModel = await _context.RoomModels.FindAsync(id);
+            var roomModel = await _context.Rooms.FindAsync(id);
             if (roomModel == null)
             {
                 return NotFound();
             }
 
-            _context.RoomModels.Remove(roomModel);
+            _context.Rooms.Remove(roomModel);
             await _context.SaveChangesAsync();
 
             return roomModel;
         }
 
-        private bool RoomModelExists(long id)
+        private bool RoomExists(long id)
         {
-            return _context.RoomModels.Any(e => e.Id == id);
+            return _context.Rooms.Any(e => e.Id == id);
         }
     }
 }

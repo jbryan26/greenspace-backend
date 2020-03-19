@@ -16,7 +16,7 @@ namespace TodoApi.Models
 
         public DbSet<ReservationModel> ReservationModels { get; set; }
 
-        public DbSet<RoomModel> RoomModels { get; set; }
+        public DbSet<Room> Rooms { get; set; }
 
         public DbSet<Location> Locations { get; set; }
 
