@@ -1,9 +1,11 @@
-﻿namespace TodoApi.DTO
+﻿using TodoApi.Controllers;
+
+namespace TodoApi.DTO
 {
     public class FieldCondition
     {
         public string Name { get; set; }
         public object Value { get; set; }
-        public  Condition Condition { get; set; }
+        public RoomsController.ExpressionRetriever.Comparison Condition { get; set; }
     }
 }

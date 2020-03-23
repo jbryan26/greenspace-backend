@@ -13,7 +13,7 @@ namespace TodoApi.Models
         public bool HasDockingStation { get; set; }
         public bool HasDualMonitors { get; set; }
         public bool IsFrontDesk { get; set; }
-        public int SeatingCapacity { get; set; }
+        public long SeatingCapacity { get; set; }
 
         public long FloorId { get; set; }
 

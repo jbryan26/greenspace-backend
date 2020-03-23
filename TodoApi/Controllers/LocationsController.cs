@@ -60,7 +60,7 @@ namespace TodoApi.Controllers
                     location1.FieldValues.Any(value => value.Value == "true" && value.Field.Name == "HaveProjector")));*/
 
             //IQueryable<Location> exp = null;
-            foreach (var fld in filter.Fields)
+            /*foreach (var fld in filter.Fields)
             {
                 if (fld.Value is string)
                 {
@@ -70,7 +70,7 @@ namespace TodoApi.Controllers
                                 location1.FieldValues.Any(value =>
                                     value.ValueString.Contains(fld.Value.ToString()) && value.Field.Name == fld.Name))
                             .ToList(); /*.Include(location => location.FieldValues)
-                    .ThenInclude(values => values.Field)*/
+                    .ThenInclude(values => values.Field)#1#
                         ;
                     }
                     else return BadRequest("Can't do this operation with string field");
@@ -84,7 +84,7 @@ namespace TodoApi.Controllers
                                 location1.FieldValues.Any(value =>
                                     value.ValueInt == (long)fld.Value && value.Field.Name == fld.Name))
                             .ToList(); /*.Include(location => location.FieldValues)
-                    .ThenInclude(values => values.Field)*/
+                    .ThenInclude(values => values.Field)#1#
                         ;
                     }
                     if (fld.Condition == Condition.Less)
@@ -112,7 +112,7 @@ namespace TodoApi.Controllers
                                 location1.FieldValues.Any(value =>
                                     value.ValueBool == (bool)fld.Value && value.Field.Name == fld.Name))
                             .ToList(); /*.Include(location => location.FieldValues)
-                    .ThenInclude(values => values.Field)*/
+                    .ThenInclude(values => values.Field)#1#
                         ;
                     }
                     else
@@ -128,7 +128,7 @@ namespace TodoApi.Controllers
                                 location1.FieldValues.Any(value =>
                                     value.ValueDate == (DateTime)fld.Value && value.Field.Name == fld.Name))
                             .ToList(); /*.Include(location => location.FieldValues)
-                    .ThenInclude(values => values.Field)*/
+                    .ThenInclude(values => values.Field)#1#
                         ;
                     }
                     if (fld.Condition == Condition.Less)
@@ -156,7 +156,7 @@ namespace TodoApi.Controllers
 
         
 
-            }
+            }*/
 
             /*Expression<Func<Location, bool>> expr = new Expression<Func<Location, bool>>();
             var location = await _context.Locations.Include(location => location.FieldValues)

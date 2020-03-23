@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -107,8 +108,13 @@ namespace TodoApi
             services.AddMvc().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+             //  options.SerializerSettings.Converters.Add(new Int32Converter());
 
             });
+
+            /*services.AddControllers()
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.Converters.Add(new IntToStringConverter()));*/
 
             services.AddSwaggerGen(c =>
             {
