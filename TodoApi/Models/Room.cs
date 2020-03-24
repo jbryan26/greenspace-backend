@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace TodoApi.Models
 {
@@ -22,5 +23,7 @@ namespace TodoApi.Models
         public string ImageUrl { get; set; }
 
         public ICollection<FieldValue> FieldValues { get; set; }
+
+        public ICollection<Image> Images { get; set; }
     }
 }

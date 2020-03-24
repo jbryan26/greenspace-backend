@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,17 +21,22 @@ namespace TodoApi.Controllers
     public class RoomsController : ControllerBase
     {
         private readonly ReservationsDbContext _context;
+        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _environment;
 
-        public RoomsController(ReservationsDbContext context)
+
+        public RoomsController(ReservationsDbContext context, IHostingEnvironment hostingEnvironment )
         {
             _context = context;
+            _hostingEnvironment = hostingEnvironment;
+            this._environment = _environment;
         }
 
         // GET: api/Rooms
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Room>>> GetRoom()
         {
-            return await _context.Rooms.Include(location => location.FieldValues).ThenInclude(values => values.Field).ToListAsync();
+            return await _context.Rooms.Include(room => room.Images).Include(location => location.FieldValues).ThenInclude(values => values.Field).ToListAsync();
         }
 
         // GET: api/Rooms
@@ -41,6 +49,7 @@ namespace TodoApi.Controllers
                 .ThenInclude(site => site.Buildings)
                 .ThenInclude(building => building.Floors)
                 .ThenInclude(floor => floor.Rooms)
+                .ThenInclude(room => room.Images)
                 .ToList()
                 .Where((region, i) => filter.RegionIds.Contains(region.Id)).SelectMany(region => region.Sites.SelectMany(site => site.Buildings.SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms)))).ToList();
 
@@ -48,17 +57,20 @@ namespace TodoApi.Controllers
                 .Include(site => site.Buildings)
                 .ThenInclude(building => building.Floors)
                 .ThenInclude(floor => floor.Rooms)
+                .ThenInclude(room => room.Images)
                 .ToList()
                 .Where((site, i) => filter.SiteIds.Contains(site.Id)).SelectMany(site => site.Buildings.SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms))).ToList();
 
             var roomsfromBuildings = _context.Building
                 .Include(building => building.Floors)
                 .ThenInclude(floor => floor.Rooms)
+                .ThenInclude(room => room.Images)
                 .ToList()
                 .Where((site, i) => filter.BuildingIds.Contains(site.Id)).SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms)).ToList();
 
             var roomsfromFloors = _context.Floor
                 .Include(floor => floor.Rooms)
+                .ThenInclude(room => room.Images)
                 .ToList()
                 .Where((site, i) => filter.FloorIds.Contains(site.Id)).SelectMany(floor => floor.Rooms).ToList();
 
@@ -93,7 +105,8 @@ namespace TodoApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Room>> GetRoom(long id)
         {
-            var roomModel = await _context.Rooms.Include(location => location.FieldValues)
+            var roomModel = await _context.Rooms.Include(room => room.Images)
+                .Include(location => location.FieldValues)
                 .ThenInclude(values => values.Field).FirstOrDefaultAsync(location1 => location1.Id == id);
 
             if (roomModel == null)
@@ -167,10 +180,74 @@ namespace TodoApi.Controllers
             return roomModel;
         }
 
+
+      public class EmailForm
+      {
+          [Display(Name = "Add a picture")]
+          [DataType(DataType.Upload)]
+          [FileExtensions(Extensions = "jpg,png,gif,jpeg,bmp,svg")]
+          public IFormFile SubmitterPicture { get; set; }
+      }
+
+        [HttpPost]
+        [Route("PostImage")]
+        public async Task<IActionResult> PostImage(IFormFile file, long id)
+      {
+            //var fileName = Path.GetFileName(file.FileName);
+            
+            var fileName = Guid.NewGuid().ToString()+ Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Uploads", fileName);
+
+          using (var fileSteam = new FileStream(filePath, FileMode.Create))
+          {
+              await file.CopyToAsync(fileSteam);
+          }
+
+          var room = _context.Rooms.Include(room1 => room1.Images).SingleOrDefault(room2 => room2.Id == id);
+          if (room == null) return BadRequest("Room not found");
+
+          room.Images.Add(new Image()
+          {
+              Name = file.FileName,
+              Path = $"Uploads/{fileName}",
+          });
+          _context.SaveChanges();
+
+            // var fls = HttpContext.Request.Form.Files;
+
+            // var files = HttpContext.Request.Form.TryGetValue("");
+
+
+
+            /*long size = files.Sum(f => f.Length);
+
+            foreach (var formFile in files)
+            {
+                if (formFile.Length > 0)
+                {
+                    var filePath = Path.GetTempFileName();
+
+                    using (var stream = System.IO.File.Create(filePath))
+                    {
+                        await formFile.CopyToAsync(stream);
+                    }
+                }
+            }*/
+
+            // Process uploaded files
+            // Don't rely on or trust the FileName property without validation.
+
+            return Ok();
+          //  return Ok(new { count = files.Count });
+      }
+
         private bool RoomExists(long id)
         {
             return _context.Rooms.Any(e => e.Id == id);
         }
+
+        
+
     }
 
     

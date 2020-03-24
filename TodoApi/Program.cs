@@ -18,6 +18,12 @@ namespace TodoApi
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                /*.ConfigureHostConfiguration(builder =>
+                {
+                    
+                    // Handle requests up to 50 MB
+                    options.Limits.MaxRequestBodySize = 52428800;
+                })*/
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Auth;
 using TodoApi.Models;
@@ -27,6 +28,8 @@ namespace TodoApi.Models
         public DbSet<Region> Regions { get; set; }
 
         public DbSet<Site> Sites { get; set; }
+
+      //  public DbSet<FormFile> Images { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
