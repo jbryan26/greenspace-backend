@@ -6,6 +6,6 @@ namespace TodoApi.DTO
     {
         public string Name { get; set; }
         public object Value { get; set; }
-        public RoomsController.ExpressionRetriever.Comparison Condition { get; set; }
+        public ExpressionHelper.ExpressionHelper.ExpressionRetriever.Comparison Condition { get; set; }
     }
 }
