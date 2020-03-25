@@ -18,6 +18,7 @@ namespace TodoApi
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+
                 /*.ConfigureHostConfiguration(builder =>
                 {
                     

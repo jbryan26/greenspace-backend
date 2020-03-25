@@ -6,12 +6,15 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using ImageMagick;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.DTO;
+using TodoApi.Helpers;
 using TodoApi.Models;
 
 namespace TodoApi.Controllers
@@ -198,10 +201,24 @@ namespace TodoApi.Controllers
             var fileName = Guid.NewGuid().ToString()+ Path.GetExtension(file.FileName);
             var filePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Uploads", fileName);
 
-          using (var fileSteam = new FileStream(filePath, FileMode.Create))
-          {
-              await file.CopyToAsync(fileSteam);
-          }
+            var fileNameTn = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePathTn = Path.Combine(_hostingEnvironment.ContentRootPath, "Uploads", fileNameTn);
+
+            string filePathFull;
+            string filePathThumbnail;
+
+            await using (var fileSteam = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileSteam);
+
+            }
+
+            //resize if needed
+                filePathFull = ImageHelper.ResizeImage(new FileInfo(filePath), filePath, false);
+                filePathThumbnail = ImageHelper.ResizeImage(new FileInfo(filePath), filePathTn, true);
+                //make thumbnail
+                
+           
 
           var room = _context.Rooms.Include(room1 => room1.Images).SingleOrDefault(room2 => room2.Id == id);
           if (room == null) return BadRequest("Room not found");
@@ -209,9 +226,16 @@ namespace TodoApi.Controllers
           room.Images.Add(new Image()
           {
               Name = file.FileName,
-              Path = $"Uploads/{fileName}",
+              Path = $"{fileName}",
           });
-          _context.SaveChanges();
+          room.Images.Add(new Image()
+          {
+              Name = file.FileName,
+              Path = $"{fileNameTn}",
+              IsThumbnail = true,
+              PathToFullImage = fileName
+          });
+            _context.SaveChanges();
 
             // var fls = HttpContext.Request.Form.Files;
 
@@ -246,10 +270,12 @@ namespace TodoApi.Controllers
             return _context.Rooms.Any(e => e.Id == id);
         }
 
-        
+
+       
 
     }
 
-    
+
+
 
 }

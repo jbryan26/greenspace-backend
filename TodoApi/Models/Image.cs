@@ -17,6 +17,10 @@ namespace TodoApi.Models
 
         public string Name { get; set; }
 
-        
+        public bool IsThumbnail { get; set; } = false;
+
+        public string PathToFullImage { get; set; }
+
+
     }
 }

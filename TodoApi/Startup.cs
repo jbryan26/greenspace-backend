@@ -25,15 +25,29 @@ using TodoApi.Models;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace TodoApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IHostingEnvironment _hostingEnvironment;
+
+        public Startup(IConfiguration configuration, Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironment)
         {
+            Environment.CurrentDirectory = hostingEnvironment.ContentRootPath;
+            _hostingEnvironment = hostingEnvironment;
             Configuration = configuration;
+          
+            //Init();
         }
+
+        /*void Init()
+        {
+            var dataDirConfig = $"{_hostingEnvironment.ContentRootPath}/../data";
+            dataDir = Path.GetFullPath(dataDirConfig);
+            //read my data files from dataDir ...
+        }*/
 
         public IConfiguration Configuration { get; }
 
@@ -193,12 +207,21 @@ namespace TodoApi
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Title V1");
             });
 
+           // var imagesDir = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+           var imagesDir = $"{_hostingEnvironment.ContentRootPath}";
+            if (!Directory.Exists(imagesDir))
+            {
+                Directory.CreateDirectory(imagesDir);
+            }
+
             app.UseStaticFiles(); // For the wwwroot folder
+            
 
             app.UseStaticFiles(new StaticFileOptions
             {
-                FileProvider = new PhysicalFileProvider(
-                    Path.Combine(Directory.GetCurrentDirectory(), "Uploads")),
+                /*FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "Uploads")),*/
+                FileProvider = new PhysicalFileProvider(imagesDir),
                 RequestPath = "/Uploads"
             });
         }
