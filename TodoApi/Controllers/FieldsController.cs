@@ -23,6 +23,7 @@ namespace TodoApi.Controllers
 
         // GET: api/Fields
         [HttpGet]
+       
         public async Task<ActionResult<IEnumerable<Field>>> GetFields(ParentType parentType = ParentType.NotSet)
         {
 
@@ -38,6 +39,8 @@ namespace TodoApi.Controllers
 
         // GET: api/Fields/5
         [HttpGet("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<Field>> GetField(long id)
         {
             var @field = await _context.Fields.FindAsync(id);
@@ -54,6 +57,8 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
         // [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<IActionResult> PutField(long id, Field @field)
         {
@@ -87,7 +92,8 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-      //  [Authorize(Policy = "OnlyCompanyAdmin")]
+        [ProducesResponseType(200)]
+        //  [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<ActionResult<Field>> PostField(Field @field)
         {
             _context.Fields.Add(@field);
@@ -98,7 +104,9 @@ namespace TodoApi.Controllers
 
         // DELETE: api/Fields/5
         [HttpDelete("{id}")]
-      //  [Authorize(Policy = "OnlyCompanyAdmin")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        //  [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<ActionResult<Field>> DeleteField(long id)
         {
             var @field = await _context.Fields.FindAsync(id);

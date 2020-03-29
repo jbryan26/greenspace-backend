@@ -29,6 +29,8 @@ namespace TodoApi.Controllers
 
         // GET: api/Floors/5
         [HttpGet("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<Floor>> GetFloor(long id)
         {
             var floor = await _context.Floor.Include(floor => floor.Rooms).SingleOrDefaultAsync(floor1 => floor1.Id == id);
@@ -45,6 +47,9 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> PutFloor(long id, Floor floor)
         {
             if (id != floor.Id)
@@ -77,6 +82,7 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
+        [ProducesResponseType(200)]
         public async Task<ActionResult<Floor>> PostFloor(Floor floor)
         {
             _context.Floor.Add(floor);
@@ -87,6 +93,8 @@ namespace TodoApi.Controllers
 
         // DELETE: api/Floors/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<Floor>> DeleteFloor(long id)
         {
             var floor = await _context.Floor.FindAsync(id);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -48,6 +49,7 @@ namespace TodoApi.Controllers
 
         [HttpPost]
         [Route("FilterLocations")]
+        [ProducesResponseType(typeof(string), 400)]
         public async Task<ActionResult<List<Location>>> FilterLocations(Filter filter)
         {
             //todo: MATERILIZING FOR NOW!
@@ -57,7 +59,7 @@ namespace TodoApi.Controllers
 
             /*var exp = _context.Locations.Include(location => location.FieldValues)
                 .ThenInclude(values => values.Field).ToList().Where(((location1, i) =>
-                    location1.FieldValues.Any(value => value.Value == "true" && value.Field.Name == "HaveProjector")));*/
+                    location1.FieldValues.Any(value => value.Value == "true" && value.Field.Name == "HaveProjector")));#1#
 
             //IQueryable<Location> exp = null;
             /*foreach (var fld in filter.Fields)
@@ -70,7 +72,7 @@ namespace TodoApi.Controllers
                                 location1.FieldValues.Any(value =>
                                     value.ValueString.Contains(fld.Value.ToString()) && value.Field.Name == fld.Name))
                             .ToList(); /*.Include(location => location.FieldValues)
-                    .ThenInclude(values => values.Field)#1#
+                    .ThenInclude(values => values.Field)#2#
                         ;
                     }
                     else return BadRequest("Can't do this operation with string field");
@@ -84,7 +86,7 @@ namespace TodoApi.Controllers
                                 location1.FieldValues.Any(value =>
                                     value.ValueInt == (long)fld.Value && value.Field.Name == fld.Name))
                             .ToList(); /*.Include(location => location.FieldValues)
-                    .ThenInclude(values => values.Field)#1#
+                    .ThenInclude(values => values.Field)#2#
                         ;
                     }
                     if (fld.Condition == Condition.Less)
@@ -112,7 +114,7 @@ namespace TodoApi.Controllers
                                 location1.FieldValues.Any(value =>
                                     value.ValueBool == (bool)fld.Value && value.Field.Name == fld.Name))
                             .ToList(); /*.Include(location => location.FieldValues)
-                    .ThenInclude(values => values.Field)#1#
+                    .ThenInclude(values => values.Field)#2#
                         ;
                     }
                     else
@@ -128,7 +130,7 @@ namespace TodoApi.Controllers
                                 location1.FieldValues.Any(value =>
                                     value.ValueDate == (DateTime)fld.Value && value.Field.Name == fld.Name))
                             .ToList(); /*.Include(location => location.FieldValues)
-                    .ThenInclude(values => values.Field)#1#
+                    .ThenInclude(values => values.Field)#2#
                         ;
                     }
                     if (fld.Condition == Condition.Less)
@@ -156,11 +158,11 @@ namespace TodoApi.Controllers
 
         
 
-            }*/
+            }#1#
 
             /*Expression<Func<Location, bool>> expr = new Expression<Func<Location, bool>>();
             var location = await _context.Locations.Include(location => location.FieldValues)
-                .ThenInclude(values => values.Field).Where(expr).ToListAsync();*/
+                .ThenInclude(values => values.Field).Where(expr).ToListAsync();#1#
             var res =  exp.ToList();
 
             if (res == null)
@@ -185,7 +187,7 @@ namespace TodoApi.Controllers
 
             /*_context.Entry(location).State = EntityState.Modified;
 
-            _context.Entry(location.FieldValues).State = EntityState.Added;*/
+            _context.Entry(location.FieldValues).State = EntityState.Added;#1#
             _context.Update(location);
             await _context.SaveChangesAsync();
 
@@ -244,3 +246,4 @@ namespace TodoApi.Controllers
         }
     }
 }
+*/

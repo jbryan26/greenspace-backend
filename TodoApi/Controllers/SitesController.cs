@@ -22,6 +22,7 @@ namespace TodoApi.Controllers
 
         // GET: api/Sites
         [HttpGet]
+
         public async Task<ActionResult<IEnumerable<Site>>> GetSites()
         {
             return await _context.Sites.Include(site => site.Buildings).ToListAsync();
@@ -29,6 +30,8 @@ namespace TodoApi.Controllers
 
         // GET: api/Sites/5
         [HttpGet("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<Site>> GetSite(long id)
         {
             var site = await _context.Sites.Include(site => site.Buildings).SingleOrDefaultAsync(site1 => site1.Id == id);
@@ -45,6 +48,8 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> PutSite(long id, Site site)
         {
             if (id != site.Id)
@@ -77,6 +82,7 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
+       
         public async Task<ActionResult<Site>> PostSite(Site site)
         {
             _context.Sites.Add(site);
@@ -87,6 +93,8 @@ namespace TodoApi.Controllers
 
         // DELETE: api/Sites/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<Site>> DeleteSite(long id)
         {
             var site = await _context.Sites.FindAsync(id);

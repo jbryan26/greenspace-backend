@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 
 namespace TodoApi.Models
@@ -7,7 +8,9 @@ namespace TodoApi.Models
     public class Room
     {
         public long Id { get; set; }
-        public string Location { get; set; }
+
+        [Required]
+        public string RoomName { get; set; }
         public ResourceType ResourceType { get; set; }
         public List<RoomFeaturesItem> RoomFeatures { get; set; }
         public bool IsCornerDesk { get; set; }

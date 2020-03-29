@@ -66,5 +66,8 @@ namespace TodoApi.Models
 
 
         public DbSet<TodoApi.Models.Floor> Floor { get; set; }
+
+
+        public DbSet<TodoApi.Models.Image> Image { get; set; }
     }
 }

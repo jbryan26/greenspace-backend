@@ -29,6 +29,8 @@ namespace TodoApi.Controllers
 
         // GET: api/Regions/5
         [HttpGet("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<Region>> GetRegion(long id)
         {
             var region = await _context.Regions.Include(region => region.Sites).SingleOrDefaultAsync(region1 => region1.Id == id);
@@ -45,6 +47,9 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> PutRegion(long id, Region region)
         {
             if (id != region.Id)
@@ -77,6 +82,8 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
+        [ProducesResponseType(200)]
+       
         public async Task<ActionResult<Region>> PostRegion(Region region)
         {
             _context.Regions.Add(region);
@@ -87,6 +94,8 @@ namespace TodoApi.Controllers
 
         // DELETE: api/Regions/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<Region>> DeleteRegion(long id)
         {
             var region = await _context.Regions.FindAsync(id);

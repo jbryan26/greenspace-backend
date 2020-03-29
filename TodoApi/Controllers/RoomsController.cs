@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using Microsoft.EntityFrameworkCore;
 using TodoApi.DTO;
 using TodoApi.Helpers;
@@ -48,8 +48,19 @@ namespace TodoApi.Controllers
         // GET: api/Rooms
         [HttpPost]
         [Route("FilterRooms")]
+        [ProducesResponseType(typeof(IEnumerable<Room>), 200)]
+        [ProducesResponseType(typeof(string), 400)]
         public async Task<ActionResult<IEnumerable<Room>>> FilterRooms(Filter filter)
         {
+            //validate filter
+            if (filter == null) return BadRequest("You should provide filter");
+            if (filter.Fields != null)
+            {
+                if (filter.Fields.Count == 0) return BadRequest("You should provide some fields");
+                
+
+            }
+
             var roomsfromRegions = _context.Regions
                 .Include(region => region.Sites)
                 .ThenInclude(site => site.Buildings)
@@ -109,6 +120,8 @@ namespace TodoApi.Controllers
 
         // GET: api/Rooms/5
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Room), 200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<Room>> GetRoom(long id)
         {
             var roomModel = await _context.Rooms.Include(room => room.Images)
@@ -127,7 +140,9 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-       // [Authorize(Policy = "OnlyCompanyAdmin")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        // [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<IActionResult> PutRoom(long id, Room roomModel)
         {
             if (id != roomModel.Id)
@@ -160,18 +175,30 @@ namespace TodoApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-      //  [Authorize(Policy = "OnlyCompanyAdmin")]
+        [ProducesResponseType(200)]
+        //  [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<ActionResult<Room>> PostRoom(Room roomModel)
         {
             _context.Rooms.Add(roomModel);
             await _context.SaveChangesAsync();
+
+            /* if there would be files
+             if (files != null)
+            {
+                foreach (var formFile in files)
+                {
+                   await PostImage(formFile, roomModel.Id);
+                }
+            }*/
 
             return CreatedAtAction("GetRoom", new { id = roomModel.Id }, roomModel);
         }
 
         // DELETE: api/Rooms/5
         [HttpDelete("{id}")]
-      //  [Authorize(Policy = "OnlyCompanyAdmin")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        //  [Authorize(Policy = "OnlyCompanyAdmin")]
         public async Task<ActionResult<Room>> DeleteRoom(long id)
         {
             var roomModel = await _context.Rooms.FindAsync(id);
@@ -197,7 +224,9 @@ namespace TodoApi.Controllers
 
         [HttpPost]
         [Route("PostImage")]
-        public async Task<IActionResult> PostImage(IFormFile file, long id)
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(string), 400)]
+        public async Task<IActionResult> PostImage([FileExtensions(Extensions = "jpg,png,gif,jpeg,bmp,svg")]IFormFile file, long id)
       {
             //var fileName = Path.GetFileName(file.FileName);
             
@@ -224,8 +253,8 @@ namespace TodoApi.Controllers
            
 
             //resize if needed
-                /*filePathFull = ImageHelper.ResizeImage(filePath, filePathRes, false);
-                filePathThumbnail = ImageHelper.ResizeImage(filePath, filePathTn, true);*/
+                filePathFull = ImageHelper.ResizeImage(filePath, filePathRes, false);
+                filePathThumbnail = ImageHelper.ResizeImage(filePath, filePathTn, true);
                 //make thumbnail
                 
            
@@ -238,21 +267,21 @@ namespace TodoApi.Controllers
               Name = file.FileName,
               Path = $"{fileName}",
           });
-            /*room.Images.Add(new Image()
+            room.Images.Add(new Image()
             {
                 Name = file.FileName,
                 Path = $"{fileNameTn}",
                 IsThumbnail = true,
                 PathToFullImage = fileName
-            });*/
+            });
 
-            room.Images.Add(new Image()
+            /*room.Images.Add(new Image()
             {
                 Name = file.FileName,
                 Path = $"tn.jpg",
                 IsThumbnail = true,
                 PathToFullImage = fileName
-            });
+            });*/
             _context.SaveChanges();
 
             // var fls = HttpContext.Request.Form.Files;
