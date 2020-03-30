@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApi.Models;
 
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(ReservationsDbContext))]
-    partial class ReservationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200330133124_test")]
+    partial class test
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -307,6 +309,7 @@ namespace TodoApi.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("RoomName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("SeatingCapacity")
@@ -384,7 +387,7 @@ namespace TodoApi.Migrations
                         {
                             Id = -2L,
                             Email = "admin",
-                            PasswordHash = "$RESERVHASH$V1$10000$igo+IGvXsyflw3bn/A8s/Ghm+BqJtc/bdpBsrlk4IWmd4Oug",
+                            PasswordHash = "$RESERVHASH$V1$10000$IikCzyVGSb1s9w/mhBjmP0Ap61wpYSQNMWFAYlnUObPEp8NK",
                             UserRole = 2
                         });
                 });

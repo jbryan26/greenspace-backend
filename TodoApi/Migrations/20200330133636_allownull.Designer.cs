@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApi.Models;
 
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(ReservationsDbContext))]
-    partial class ReservationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200330133636_allownull")]
+    partial class allownull
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -384,7 +386,7 @@ namespace TodoApi.Migrations
                         {
                             Id = -2L,
                             Email = "admin",
-                            PasswordHash = "$RESERVHASH$V1$10000$igo+IGvXsyflw3bn/A8s/Ghm+BqJtc/bdpBsrlk4IWmd4Oug",
+                            PasswordHash = "$RESERVHASH$V1$10000$uIRwwhu3s+2jNRJpgnGnWHl+dZnaArh/UBxvVrABsJtP0PZh",
                             UserRole = 2
                         });
                 });

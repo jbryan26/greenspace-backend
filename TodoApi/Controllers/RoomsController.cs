@@ -42,7 +42,7 @@ namespace TodoApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Room>>> GetRoom()
         {
-            return await _context.Rooms.Include(room => room.Images).Include(location => location.FieldValues).ThenInclude(values => values.Field).ToListAsync();
+            return await _context.Rooms.Include(location => location.FieldValues).ThenInclude(values => values.Field).ToListAsync();
         }
 
         // GET: api/Rooms
