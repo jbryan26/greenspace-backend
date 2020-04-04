@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TodoApi.DTO;
 using TodoApi.Models;
 
 namespace TodoApi.Controllers
@@ -14,18 +17,21 @@ namespace TodoApi.Controllers
     public class SitesController : ControllerBase
     {
         private readonly ReservationsDbContext _context;
+        private readonly IMapper _mapper;
 
-        public SitesController(ReservationsDbContext context)
+        public SitesController(ReservationsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Sites
         [HttpGet]
 
-        public async Task<ActionResult<IEnumerable<Site>>> GetSites()
+        public async Task<ActionResult<IEnumerable<SiteDto>>> GetSites()
         {
-            return await _context.Sites.Include(site => site.Buildings).ToListAsync();
+            var res =  _context.Sites.Include(site => site.Buildings).ProjectTo<SiteDto>(_mapper.ConfigurationProvider).ToList();
+            return res;
         }
 
         // GET: api/Sites/5
@@ -34,7 +40,7 @@ namespace TodoApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<Site>> GetSite(long id)
         {
-            var site = await _context.Sites.Include(site => site.Buildings).SingleOrDefaultAsync(site1 => site1.Id == id);
+            var site = await _context.Sites.Include(site => site.Buildings).ProjectTo<SiteDto>(_mapper.ConfigurationProvider).SingleOrDefaultAsync(site1 => site1.Id == id);
 
             if (site == null)
             {

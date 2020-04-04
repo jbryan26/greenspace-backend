@@ -22,6 +22,8 @@ namespace TodoApi.Models
 
         public long FloorId { get; set; }
 
+        public Floor Floor { get; set; }
+
 
 
         public string ImageUrl { get; set; }

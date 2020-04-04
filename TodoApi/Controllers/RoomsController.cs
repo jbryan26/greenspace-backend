@@ -7,7 +7,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -28,21 +29,23 @@ namespace TodoApi.Controllers
     {
         private readonly ReservationsDbContext _context;
         private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _environment;
 
 
-        public RoomsController(ReservationsDbContext context, IHostingEnvironment hostingEnvironment )
+        public RoomsController(ReservationsDbContext context, IHostingEnvironment hostingEnvironment , IMapper mapper)
         {
             _context = context;
             _hostingEnvironment = hostingEnvironment;
+            _mapper = mapper;
             this._environment = _environment;
         }
 
         // GET: api/Rooms
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Room>>> GetRoom()
+        public async Task<ActionResult<IEnumerable<RoomDto>>> GetRoom()
         {
-            return await _context.Rooms.Include(location => location.FieldValues).ThenInclude(values => values.Field).ToListAsync();
+            return await _context.Rooms.Include(location => location.FieldValues).ThenInclude(values => values.Field).ProjectTo<RoomDto>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         // GET: api/Rooms
@@ -91,14 +94,22 @@ namespace TodoApi.Controllers
                 .ToList()
                 .Where((site, i) => filter.FloorIds.Contains(site.Id)).SelectMany(floor => floor.Rooms).ToList();
 
-           var res = roomsfromRegions.Union(roomsfromSites).Union(roomsfromBuildings).Union(roomsfromFloors);
+           var res = roomsfromRegions.Union(roomsfromSites).Union(roomsfromBuildings).Union(roomsfromFloors).AsQueryable().ProjectTo<RoomDto>(_mapper.ConfigurationProvider).AsEnumerable();
 
 
            if (filter.Fields != null)
            {
-               var expressionTree = ExpressionHelper.ExpressionHelper.ConstructAndExpressionTree<Room>(filter.Fields);
-               var anonymousFunc = expressionTree.Compile();
-               res = res.Where(anonymousFunc);
+               try
+               {
+                   var expressionTree = ExpressionHelper.ExpressionHelper.ConstructAndExpressionTree<RoomDto>(filter.Fields);
+                   var anonymousFunc = expressionTree.Compile();
+                   res = res.Where(anonymousFunc);
+                }
+               catch (System.ArgumentException e)
+               {
+                   return BadRequest("Seems like Fields contain incorrect fieldname or value");
+               }
+               
             }
           
 
@@ -122,11 +133,13 @@ namespace TodoApi.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(Room), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<Room>> GetRoom(long id)
+        public async Task<ActionResult<RoomDto>> GetRoom(long id)
         {
             var roomModel = await _context.Rooms.Include(room => room.Images)
                 .Include(location => location.FieldValues)
-                .ThenInclude(values => values.Field).FirstOrDefaultAsync(location1 => location1.Id == id);
+                .ThenInclude(values => values.Field)
+                .ProjectTo<RoomDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync(location1 => location1.Id == id);
 
             if (roomModel == null)
             {

@@ -11,7 +11,7 @@ namespace TodoApi.Models
 
         public long SiteId { get; set; }
 
-       
+        public Site Site { get; set; }
 
         [JsonProperty("items")]
         public ICollection<Floor> Floors { get; set; }

@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TodoApi.DTO;
 using TodoApi.Models;
 
 namespace TodoApi.Controllers
@@ -14,24 +17,26 @@ namespace TodoApi.Controllers
     public class BuildingsController : ControllerBase
     {
         private readonly ReservationsDbContext _context;
+        private readonly IMapper _mapper;
 
-        public BuildingsController(ReservationsDbContext context)
+        public BuildingsController(ReservationsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Buildings
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Building>>> GetBuilding()
         {
-            return await _context.Building.Include(building => building.Floors).ToListAsync();
+            return await _context.Building.Include(building => building.Floors).ProjectTo<BuildingDto>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         // GET: api/Buildings/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Building>> GetBuilding(long id)
         {
-            var building = await _context.Building.Include(building => building.Floors).SingleOrDefaultAsync(building1 => building1.Id == id);
+            var building = await _context.Building.Include(building => building.Floors).ProjectTo<BuildingDto>(_mapper.ConfigurationProvider).SingleOrDefaultAsync(building1 => building1.Id == id);
 
             if (building == null)
             {

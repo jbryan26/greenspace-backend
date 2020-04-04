@@ -11,6 +11,8 @@ namespace TodoApi.Models
 
         public long BuildingId { get; set; }
 
+        public Building Building { get; set; }
+
        
 
         [JsonProperty("items")]

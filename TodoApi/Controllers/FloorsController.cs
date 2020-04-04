@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TodoApi.DTO;
 using TodoApi.Models;
 
 namespace TodoApi.Controllers
@@ -14,17 +17,19 @@ namespace TodoApi.Controllers
     public class FloorsController : ControllerBase
     {
         private readonly ReservationsDbContext _context;
+        private readonly IMapper _mapper;
 
-        public FloorsController(ReservationsDbContext context)
+        public FloorsController(ReservationsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Floors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Floor>>> GetFloor()
+        public async Task<ActionResult<IEnumerable<FloorDto>>> GetFloor()
         {
-            return await _context.Floor.Include(floor => floor.Rooms).ToListAsync();
+            return await _context.Floor.Include(floor => floor.Rooms).ProjectTo<FloorDto>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         // GET: api/Floors/5
@@ -33,7 +38,7 @@ namespace TodoApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<Floor>> GetFloor(long id)
         {
-            var floor = await _context.Floor.Include(floor => floor.Rooms).SingleOrDefaultAsync(floor1 => floor1.Id == id);
+            var floor = await _context.Floor.Include(floor => floor.Rooms).ProjectTo<FloorDto>(_mapper.ConfigurationProvider).SingleOrDefaultAsync(floor1 => floor1.Id == id);
 
             if (floor == null)
             {
