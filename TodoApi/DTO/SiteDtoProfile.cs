@@ -16,6 +16,7 @@ namespace TodoApi.DTO
             CreateMap<Building, BuildingDto>();
             CreateMap<Floor, FloorDto>();
             CreateMap<Room, RoomDto>();
+            CreateMap<ReservationModel, ReservationDto>();
 
             // Add other CreateMap’s for any other configs
         }

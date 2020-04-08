@@ -60,56 +60,16 @@ namespace TodoApi.Controllers
             if (filter.Fields != null)
             {
                 if (filter.Fields.Count == 0) return BadRequest("You should provide some fields");
-                
-
             }
 
-            var roomsfromRegions = _context.Regions
-                .Include(region => region.Sites)
-                .ThenInclude(site => site.Buildings)
-                .ThenInclude(building => building.Floors)
-                .ThenInclude(floor => floor.Rooms)
-                .ThenInclude(room => room.Images)
-                .ToList()
-                .Where((region, i) => filter.RegionIds.Contains(region.Id)).SelectMany(region => region.Sites.SelectMany(site => site.Buildings.SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms)))).ToList();
-
-            var roomsfromSites = _context.Sites
-                .Include(site => site.Buildings)
-                .ThenInclude(building => building.Floors)
-                .ThenInclude(floor => floor.Rooms)
-                .ThenInclude(room => room.Images)
-                .ToList()
-                .Where((site, i) => filter.SiteIds.Contains(site.Id)).SelectMany(site => site.Buildings.SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms))).ToList();
-
-            var roomsfromBuildings = _context.Building
-                .Include(building => building.Floors)
-                .ThenInclude(floor => floor.Rooms)
-                .ThenInclude(room => room.Images)
-                .ToList()
-                .Where((site, i) => filter.BuildingIds.Contains(site.Id)).SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms)).ToList();
-
-            var roomsfromFloors = _context.Floor
-                .Include(floor => floor.Rooms)
-                .ThenInclude(room => room.Images)
-                .ToList()
-                .Where((site, i) => filter.FloorIds.Contains(site.Id)).SelectMany(floor => floor.Rooms).ToList();
-
-           var res = roomsfromRegions.Union(roomsfromSites).Union(roomsfromBuildings).Union(roomsfromFloors).AsQueryable().ProjectTo<RoomDto>(_mapper.ConfigurationProvider).AsEnumerable();
-
-
-           if (filter.Fields != null)
-           {
-               try
-               {
-                   var expressionTree = ExpressionHelper.ExpressionHelper.ConstructAndExpressionTree<RoomDto>(filter.Fields);
-                   var anonymousFunc = expressionTree.Compile();
-                   res = res.Where(anonymousFunc);
-                }
-               catch (System.ArgumentException e)
-               {
-                   return BadRequest("Seems like Fields contain incorrect fieldname or value");
-               }
-               
+            try
+            {
+                var res = FilterRoomsBll(filter);
+                return Ok(res);
+            }
+            catch (IncorrectFieldFilterException e)
+            {
+                return BadRequest(e.Message);
             }
           
 
@@ -126,7 +86,108 @@ namespace TodoApi.Controllers
 
             /*var all = await _context.Rooms.Include(location => location.FieldValues).ThenInclude(values => values.Field).ToListAsync();
             return all.Where((model, i) => filter.FloorIds.Contains(model.FloorId)).ToList();*/
-            return Ok(res);
+           
+        }
+
+        //todo: refactor to BLL
+        private IEnumerable<RoomDto> FilterRoomsBll(Filter filter)
+        {
+            var roomsfromRegions = _context.Regions
+                .Include(region => region.Sites)
+                .ThenInclude(site => site.Buildings)
+                .ThenInclude(building => building.Floors)
+                .ThenInclude(floor => floor.Rooms)
+                .ThenInclude(room => room.Images)
+                .ToList()
+                .Where((region, i) => filter.RegionIds?.Contains(region.Id) ?? true).SelectMany(region =>
+                    region.Sites.SelectMany(site =>
+                        site.Buildings.SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms)))).ToList();
+
+            var roomsfromSites = _context.Sites
+                .Include(site => site.Buildings)
+                .ThenInclude(building => building.Floors)
+                .ThenInclude(floor => floor.Rooms)
+                .ThenInclude(room => room.Images)
+                .ToList()
+                .Where((site, i) => filter.SiteIds?.Contains(site.Id) ?? true).SelectMany(site =>
+                    site.Buildings.SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms))).ToList();
+
+            var roomsfromBuildings = _context.Building
+                .Include(building => building.Floors)
+                .ThenInclude(floor => floor.Rooms)
+                .ThenInclude(room => room.Images)
+                .ToList()
+                .Where((site, i) => filter.BuildingIds?.Contains(site.Id) ?? true)
+                .SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms)).ToList();
+
+            var roomsfromFloors = _context.Floor
+                .Include(floor => floor.Rooms)
+                .ThenInclude(room => room.Images)
+                .ToList()
+                .Where((site, i) => filter.FloorIds?.Contains(site.Id) ?? true).SelectMany(floor => floor.Rooms).ToList();
+
+            var res = roomsfromRegions.Union(roomsfromSites).Union(roomsfromBuildings).Union(roomsfromFloors).AsQueryable()
+                .ProjectTo<RoomDto>(_mapper.ConfigurationProvider).AsEnumerable();
+
+
+            if (filter.Fields != null)
+            {
+                try
+                {
+                    var expressionTree = ExpressionHelper.ExpressionHelper.ConstructAndExpressionTree<RoomDto>(filter.Fields);
+                    var anonymousFunc = expressionTree.Compile();
+                    res = res.Where(anonymousFunc);
+                }
+
+                catch (System.ArgumentException e)
+                {
+                    throw new IncorrectFieldFilterException("Seems like Fields contain incorrect fieldname or value");
+                 //  return BadRequest("Seems like Fields contain incorrect fieldname or value");
+               }
+            }
+
+            return res;
+        }
+
+        [HttpPost]
+        [Route("GetReservations")]
+        public async Task<ActionResult<IEnumerable<ReservationDto>>> GetReservations(Filter filter, DateTime startDate, DateTime endDate)
+        {
+            //validate filter
+            if (filter == null) return BadRequest("You should provide filter");
+            if (filter.Fields != null)
+            {
+                if (filter.Fields.Count == 0) return BadRequest("You should provide some fields");
+            }
+
+            try
+            {
+                var res = FilterRoomsBll(filter);
+                var roomIds = res.Select(room => room.Id);
+                var reservations = await _context.ReservationModels
+                    .Where(model => model.StartTime > startDate && model.EndTime < endDate)
+                    .Where(model => roomIds.Contains(model.RoomId)).ProjectTo<ReservationDto>(_mapper.ConfigurationProvider).ToListAsync();
+                return reservations;
+            }
+            catch (IncorrectFieldFilterException e)
+            {
+                return BadRequest(e.Message);
+            }
+
+
+            /*var mthd =  FilterRooms(filter);
+
+
+
+            if (res == null) return Ok();
+            var roomIds = res.Value.ToList().Select(room => room.Id);
+            var reservations = await _context.ReservationModels
+                .Where(model => model.StartTime > startDate && model.EndTime < endDate)
+                .Where(model => roomIds.Contains(model.Id)).ProjectTo<ReservationDto>(_mapper.ConfigurationProvider).ToListAsync();
+            return reservations;
+
+              */
+            return Ok();
         }
 
         // GET: api/Rooms/5
@@ -335,7 +396,11 @@ namespace TodoApi.Controllers
 
     }
 
-
-
-
+    internal class IncorrectFieldFilterException : Exception
+    {
+        public IncorrectFieldFilterException(string seemsLikeFieldsContainIncorrectFieldnameOrValue) : base(seemsLikeFieldsContainIncorrectFieldnameOrValue)
+        {
+          
+        }
+    }
 }

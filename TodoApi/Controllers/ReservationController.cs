@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TodoApi.DTO;
 using TodoApi.Models;
 
 namespace TodoApi.Controllers
@@ -14,23 +17,27 @@ namespace TodoApi.Controllers
     public class ReservationController : ControllerBase
     {
         private readonly ReservationsDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ReservationController(ReservationsDbContext context)
+        public ReservationController(ReservationsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Reservation
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ReservationModel>>> GetReservationModels()
+        public async Task<ActionResult<IEnumerable<ReservationDto>>> GetReservationModels()
         {
-            return await _context.ReservationModels.ToListAsync();
+            return await _context.ReservationModels.ProjectTo<ReservationDto>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         // GET: api/Reservation/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ReservationModel>> GetReservationModel(long id)
         {
+           
+           
             var reservationModel = await _context.ReservationModels.FindAsync(id);
 
             if (reservationModel == null)
@@ -38,7 +45,7 @@ namespace TodoApi.Controllers
                 return NotFound();
             }
 
-            return reservationModel;
+            return _mapper.Map<ReservationDto>(reservationModel);
         }
 
         // PUT: api/Reservation/5
