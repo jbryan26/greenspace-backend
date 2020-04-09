@@ -28,6 +28,7 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+using    Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 
 namespace TodoApi
 {
@@ -119,8 +120,7 @@ namespace TodoApi
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
               //  options.SerializerSettings.Converters.Add(new StringEnumConverter());
             });*/
-
-
+            
 
             services.AddControllers().AddJsonOptions(options =>
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -134,6 +134,8 @@ namespace TodoApi
              //  options.SerializerSettings.Converters.Add(new Int32Converter());
 
             });
+
+            
 
             /*services.AddControllers()
                 .AddJsonOptions(options =>
@@ -154,9 +156,18 @@ namespace TodoApi
                 });
             });
 
-            services.AddAuthorization(options => options.AddPolicy("OnlyCompanyAdmin", policy =>
-                policy.RequireClaim("AccessLevel", "CompanyAdmin"))
-            );
+            services.AddAuthorization(options => { 
+                options.AddPolicy("OnlyAdmin", policy =>
+                    policy.RequireClaim("AccessLevel", "Admin"));
+                options.AddPolicy("OnlySuperAdmin", policy =>
+                    policy.RequireClaim("AccessLevel", "SuperAdmin"));
+                options.AddPolicy("OnlySiteAdmin", policy =>
+                    policy.RequireClaim("AccessLevel", "SiteAdmin"));
+                options.AddPolicy("OnlyAllAdmins", policy =>
+                    policy.RequireClaim("AccessLevel", "SiteAdmin", "SuperAdmin", "Admin") );
+
+
+            });
 
             services.Configure<FormOptions>(options =>
             {
@@ -171,7 +182,7 @@ namespace TodoApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            UpdateDatabase(app);
+           // UpdateDatabase(app);
 
             if (env.IsDevelopment())
             {

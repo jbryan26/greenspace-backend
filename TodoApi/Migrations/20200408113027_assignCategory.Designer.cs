@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApi.Models;
 
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(ReservationsDbContext))]
-    partial class ReservationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200408113027_assignCategory")]
+    partial class assignCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,9 +245,6 @@ namespace TodoApi.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("Approved")
-                        .HasColumnType("int");
-
                     b.Property<string>("AssignCategory")
                         .HasColumnType("nvarchar(max)");
 
@@ -392,7 +391,7 @@ namespace TodoApi.Migrations
                         {
                             Id = -2L,
                             Email = "admin",
-                            PasswordHash = "$RESERVHASH$V1$10000$9irW0AwIIVe135XagkyQgYIdePmjvKZ5LCPIF8OZ+xruc1Mz",
+                            PasswordHash = "$RESERVHASH$V1$10000$KDj257nYi/y2EdacnLJzOcEPi0Gas2AU6P63ZHHf7UCd/SM3",
                             UserRole = 2
                         });
                 });

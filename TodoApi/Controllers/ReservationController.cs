@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -92,6 +93,32 @@ namespace TodoApi.Controllers
             return CreatedAtAction("GetReservationModel", new { id = reservationModel.Id }, reservationModel);
         }
 
+
+
+        [HttpPut()]
+        [Route("SetReservationApprove")]
+        [Authorize(Policy = "OnlyAllAdmins")]
+        //  [Authorize(Policy = "OnlySiteAdmin")]
+
+        public async Task<ActionResult<ReservationDto>> SetReservationApprove(long id, ApproveStatus approve)
+        {
+
+
+            var reservationModel = await _context.ReservationModels.FindAsync(id);
+
+
+            if (reservationModel == null)
+            {
+                return NotFound();
+            }
+
+            reservationModel.Approved = approve;
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<ReservationDto>(reservationModel);
+        }
+
+
         // DELETE: api/Reservation/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<ReservationModel>> DeleteReservationModel(long id)
@@ -107,6 +134,8 @@ namespace TodoApi.Controllers
 
             return reservationModel;
         }
+
+
 
         private bool ReservationModelExists(long id)
         {

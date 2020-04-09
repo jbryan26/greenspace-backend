@@ -11,7 +11,7 @@ namespace TodoApi.Models
         public long Id { get; set; }
 
        
-        public string? RoomName { get; set; }
+        public string? Name { get; set; }
         public ResourceType ResourceType { get; set; }
         public List<RoomFeaturesItem> RoomFeatures { get; set; }
         public bool IsCornerDesk { get; set; }
