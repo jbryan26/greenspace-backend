@@ -16,10 +16,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using TodoApi.DTO;
 using TodoApi.Helpers;
 using TodoApi.Models;
 using Image = TodoApi.Models.Image;
+using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
 
 namespace TodoApi.Controllers
 {
@@ -45,7 +47,7 @@ namespace TodoApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RoomDto>>> GetRoom()
         {
-            return await _context.Rooms.Include(location => location.FieldValues).ThenInclude(values => values.Field).ProjectTo<RoomDto>(_mapper.ConfigurationProvider).ToListAsync();
+            return await _context.Rooms.Include(location => location.ResourceType).Include(location => location.FieldValues).ThenInclude(values => values.Field).ProjectTo<RoomDto>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         // GET: api/Rooms
@@ -53,7 +55,7 @@ namespace TodoApi.Controllers
         [Route("FilterRooms")]
         [ProducesResponseType(typeof(IEnumerable<Room>), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        public async Task<ActionResult<IEnumerable<Room>>> FilterRooms(Filter filter)
+        public async Task<ActionResult<IEnumerable<RoomDto>>> FilterRooms(Filter filter)
         {
             //validate filter
             if (filter == null) return BadRequest("You should provide filter");
@@ -94,10 +96,16 @@ namespace TodoApi.Controllers
         {
             var roomsfromRegions = _context.Regions
                 .Include(region => region.Sites)
-                .ThenInclude(site => site.Buildings)
-                .ThenInclude(building => building.Floors)
-                .ThenInclude(floor => floor.Rooms)
-                .ThenInclude(room => room.Images)
+                    .ThenInclude(site => site.Buildings)
+                        .ThenInclude(building => building.Floors)
+                            .ThenInclude(floor => floor.Rooms)
+                                .ThenInclude(room => room.Images)
+                .Include(region => region.Sites)
+                    .ThenInclude(site => site.Buildings)
+                        .ThenInclude(building => building.Floors)
+                            .ThenInclude(floor => floor.Rooms)
+                                .ThenInclude(room => room.ResourceType)
+
                 .ToList()
                 .Where((region, i) => filter.RegionIds?.Contains(region.Id) ?? true).SelectMany(region =>
                     region.Sites.SelectMany(site =>
@@ -105,17 +113,24 @@ namespace TodoApi.Controllers
 
             var roomsfromSites = _context.Sites
                 .Include(site => site.Buildings)
-                .ThenInclude(building => building.Floors)
-                .ThenInclude(floor => floor.Rooms)
-                .ThenInclude(room => room.Images)
+                    .ThenInclude(building => building.Floors)
+                        .ThenInclude(floor => floor.Rooms)
+                            .ThenInclude(room => room.Images)
+                .Include(site => site.Buildings)
+                    .ThenInclude(building => building.Floors)
+                        .ThenInclude(floor => floor.Rooms)
+                            .ThenInclude(room => room.ResourceType)
                 .ToList()
                 .Where((site, i) => filter.SiteIds?.Contains(site.Id) ?? true).SelectMany(site =>
                     site.Buildings.SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms))).ToList();
 
             var roomsfromBuildings = _context.Building
                 .Include(building => building.Floors)
-                .ThenInclude(floor => floor.Rooms)
-                .ThenInclude(room => room.Images)
+                    .ThenInclude(floor => floor.Rooms)
+                        .ThenInclude(room => room.Images)
+                .Include(building => building.Floors)
+                    .ThenInclude(floor => floor.Rooms)
+                        .ThenInclude(room => room.ResourceType)
                 .ToList()
                 .Where((site, i) => filter.BuildingIds?.Contains(site.Id) ?? true)
                 .SelectMany(building => building.Floors.SelectMany(floor => floor.Rooms)).ToList();
@@ -123,23 +138,30 @@ namespace TodoApi.Controllers
             var roomsfromFloors = _context.Floor
                 .Include(floor => floor.Rooms)
                 .ThenInclude(room => room.Images)
+                .Include(floor => floor.Rooms)
+                .ThenInclude(room => room.ResourceType)
                 .ToList()
                 .Where((site, i) => filter.FloorIds?.Contains(site.Id) ?? true).SelectMany(floor => floor.Rooms).ToList();
 
-            var res = roomsfromRegions.Union(roomsfromSites).Union(roomsfromBuildings).Union(roomsfromFloors).AsQueryable()
-                .ProjectTo<RoomDto>(_mapper.ConfigurationProvider).AsEnumerable();
+
+
+               var res = roomsfromRegions.Union(roomsfromSites).Union(roomsfromBuildings).Union(roomsfromFloors).AsQueryable().ProjectTo<RoomDto>(_mapper.ConfigurationProvider).ToList();
+              
+          //  var res = roomsfromRegions.Union(roomsfromSites).Union(roomsfromBuildings).Union(roomsfromFloors).AsEnumerable();
 
 
             if (filter.Fields != null)
             {
                 try
                 {
+                    //res.Where((dto, i) => dto.HasDockingStation == true);
+
                     var expressionTree = ExpressionHelper.ExpressionHelper.ConstructAndExpressionTree<RoomDto>(filter.Fields);
                     var anonymousFunc = expressionTree.Compile();
-                    res = res.Where(anonymousFunc);
+                    res = res.AsEnumerable().Where(anonymousFunc).ToList();
                 }
 
-                catch (System.ArgumentException e)
+                catch (ArgumentException e)
                 {
                     throw new IncorrectFieldFilterException("Seems like Fields contain incorrect fieldname or value");
                  //  return BadRequest("Seems like Fields contain incorrect fieldname or value");
@@ -165,7 +187,7 @@ namespace TodoApi.Controllers
             {
                 var res = FilterRoomsBll(filter);
                 var roomIds = res.Select(room => room.Id);
-                var reservations = await _context.ReservationModels
+                var reservations = await _context.ReservationModels.Include(model => model.FoodDetailItems)
                     .Where(model => model.StartTime > startDate && model.EndTime < endDate)
                     .Where(model => roomIds.Contains(model.RoomId)).ProjectTo<ReservationDto>(_mapper.ConfigurationProvider).ToListAsync();
                 return reservations;
@@ -198,6 +220,7 @@ namespace TodoApi.Controllers
         public async Task<ActionResult<RoomDto>> GetRoom(long id)
         {
             var roomModel = await _context.Rooms.Include(room => room.Images)
+                .Include(location => location.ResourceType)
                 .Include(location => location.FieldValues)
                 .ThenInclude(values => values.Field)
                 .ProjectTo<RoomDto>(_mapper.ConfigurationProvider)
@@ -252,10 +275,30 @@ namespace TodoApi.Controllers
         [HttpPost]
         [ProducesResponseType(200)]
         //  [Authorize(Policy = "OnlyCompanyAdmin")]
-        public async Task<ActionResult<Room>> PostRoom(Room roomModel)
+        //    public async Task<ActionResult<RoomDto>> PostRoom([FromForm(Name = "file")][AllowedExtensions(new string[] { ".jpg", ".png", ".jpeg" })]IFormFile file, Room roomModel)
+          public async Task<ActionResult<RoomDto>> PostRoom([FromForm]RoomWithImage roomWithImage)
+
+        //  public async Task<ActionResult<RoomDto>> PostRoom(IFormFile file, Room roomModel)
+      //    public async Task<ActionResult<RoomDto>> PostRoom([FromForm(Name = "file")][AllowedExtensions(new string[] { ".jpg", ".png", ".jpeg" })]IFormFile file, [FromForm]string roomModelStr)
+
         {
+          /*var  roomModel = roomWithImage.Room;
+          var file = roomWithImage.File;*/
+
+          var roomModel = JsonConvert.DeserializeObject<Room>(roomWithImage.RoomStr);
+          var files = roomWithImage.Files;
+
             _context.Rooms.Add(roomModel);
             await _context.SaveChangesAsync();
+
+
+            if (files?.Count != 0)
+            {
+                foreach (var file in files)
+                {
+                    await UploadFile(file, roomModel);
+                }
+            }
 
             /* if there would be files
              if (files != null)
@@ -266,7 +309,7 @@ namespace TodoApi.Controllers
                 }
             }*/
 
-            return CreatedAtAction("GetRoom", new { id = roomModel.Id }, roomModel);
+            return CreatedAtAction("GetRoom", new { id = roomModel.Id }, _mapper.Map<RoomDto>(roomModel));
         }
 
         // DELETE: api/Rooms/5
@@ -301,11 +344,23 @@ namespace TodoApi.Controllers
         [Route("PostImage")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(string), 400)]
-        public async Task<IActionResult> PostImage([FileExtensions(Extensions = "jpg,png,gif,jpeg,bmp,svg")]IFormFile file, long id)
-      {
+        // public async Task<IActionResult> PostImage([FileExtensions(Extensions = "jpg,png,gif,jpeg,bmp,svg")]IFormFile file, long id)
+        public async Task<IActionResult> PostImage([AllowedExtensions(new string[] { ".jpg", ".png", ".jpeg" })]IFormFile file, long id)
+        {
+            var room = _context.Rooms.Include(room1 => room1.Images).SingleOrDefault(room2 => room2.Id == id);
+            if (room == null) return BadRequest("Room not found");
+
+            await UploadFile(file, room);
+
+            return Ok(_mapper.Map<RoomDto>(room));
+          //  return Ok(new { count = files.Count });
+      }
+
+        private async Task UploadFile(IFormFile file, Room room)
+        {
             //var fileName = Path.GetFileName(file.FileName);
-            
-            var fileName = Guid.NewGuid().ToString()+ Path.GetExtension(file.FileName);
+
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
             var filePath = Path.Combine(_hostingEnvironment.ContentRootPath, fileName);
 
             var fileNameRes = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
@@ -317,31 +372,26 @@ namespace TodoApi.Controllers
             string filePathFull;
             string filePathThumbnail;
 
-           // Bitmap bmp;
+            // Bitmap bmp;
             await using (var fileSteam = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(fileSteam);
-              //  fileSteam.Position = 0;
-             //   bmp = new Bitmap(fileSteam);
+                //  fileSteam.Position = 0;
+                //   bmp = new Bitmap(fileSteam);
             }
 
-           
 
             //resize if needed
-                filePathFull = ImageHelper.ResizeImage(filePath, filePathRes, false);
-                filePathThumbnail = ImageHelper.ResizeImage(filePath, filePathTn, true);
-                //make thumbnail
-                
-           
+            filePathFull = ImageHelper.ResizeImage(filePath, filePathRes, false);
+            filePathThumbnail = ImageHelper.ResizeImage(filePath, filePathTn, true);
+            //make thumbnail
 
-          var room = _context.Rooms.Include(room1 => room1.Images).SingleOrDefault(room2 => room2.Id == id);
-          if (room == null) return BadRequest("Room not found");
 
-          room.Images.Add(new Image()
-          {
-              Name = file.FileName,
-              Path = $"{fileName}",
-          });
+            room.Images.Add(new Image()
+            {
+                Name = file.FileName,
+                Path = $"{fileName}",
+            });
             room.Images.Add(new Image()
             {
                 Name = file.FileName,
@@ -364,7 +414,6 @@ namespace TodoApi.Controllers
             // var files = HttpContext.Request.Form.TryGetValue("");
 
 
-
             /*long size = files.Sum(f => f.Length);
 
             foreach (var formFile in files)
@@ -382,19 +431,102 @@ namespace TodoApi.Controllers
 
             // Process uploaded files
             // Don't rely on or trust the FileName property without validation.
+        }
 
-            return Ok();
-          //  return Ok(new { count = files.Count });
-      }
+        /*private async Task UploadFile(byte[] file, string filename, Room room)
+        {
+            //var fileName = Path.GetFileName(file.FileName);
+
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(_hostingEnvironment.ContentRootPath, fileName);
+
+            var fileNameRes = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePathRes = Path.Combine(_hostingEnvironment.ContentRootPath, fileNameRes);
+
+            var fileNameTn = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePathTn = Path.Combine(_hostingEnvironment.ContentRootPath, fileNameTn);
+
+            string filePathFull;
+            string filePathThumbnail;
+
+            // Bitmap bmp;
+            await using (var fileSteam = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileSteam);
+                //  fileSteam.Position = 0;
+                //   bmp = new Bitmap(fileSteam);
+            }
+
+
+            //resize if needed
+            filePathFull = ImageHelper.ResizeImage(filePath, filePathRes, false);
+            filePathThumbnail = ImageHelper.ResizeImage(filePath, filePathTn, true);
+            //make thumbnail
+
+
+            room.Images.Add(new Image()
+            {
+                Name = file.FileName,
+                Path = $"{fileName}",
+            });
+            room.Images.Add(new Image()
+            {
+                Name = file.FileName,
+                Path = $"{fileNameTn}",
+                IsThumbnail = true,
+                PathToFullImage = fileName
+            });
+
+            /*room.Images.Add(new Image()
+            {
+                Name = file.FileName,
+                Path = $"tn.jpg",
+                IsThumbnail = true,
+                PathToFullImage = fileName
+            });#1#
+            _context.SaveChanges();
+
+            // var fls = HttpContext.Request.Form.Files;
+
+            // var files = HttpContext.Request.Form.TryGetValue("");
+
+
+            /*long size = files.Sum(f => f.Length);
+
+            foreach (var formFile in files)
+            {
+                if (formFile.Length > 0)
+                {
+                    var filePath = Path.GetTempFileName();
+
+                    using (var stream = System.IO.File.Create(filePath))
+                    {
+                        await formFile.CopyToAsync(stream);
+                    }
+                }
+            }#1#
+
+            // Process uploaded files
+            // Don't rely on or trust the FileName property without validation.
+        }*/
+
 
         private bool RoomExists(long id)
         {
             return _context.Rooms.Any(e => e.Id == id);
         }
 
+        public class RoomWithImage
+        {
+            /*[FromForm]
+            public Room Room { get; set; }*/
 
-       
+            [FromForm] public string RoomStr { get; set; }
 
+            [FromForm]
+            [AllowedExtensions(new string[] { ".jpg", ".png", ".jpeg" })]
+            public ICollection<IFormFile> Files { get; set; }
+        }
     }
 
     internal class IncorrectFieldFilterException : Exception
@@ -402,6 +534,38 @@ namespace TodoApi.Controllers
         public IncorrectFieldFilterException(string seemsLikeFieldsContainIncorrectFieldnameOrValue) : base(seemsLikeFieldsContainIncorrectFieldnameOrValue)
         {
           
+        }
+    }
+
+    public class AllowedExtensionsAttribute : ValidationAttribute
+    {
+        private readonly string[] _Extensions;
+        public AllowedExtensionsAttribute(string[] Extensions)
+        {
+            _Extensions = Extensions;
+        }
+
+        protected override ValidationResult IsValid(
+            object value, ValidationContext validationContext)
+        {
+            var file = value as IFormFile;
+            var extension = Path.GetExtension(file.FileName);
+            if (!(file == null))
+            {
+                if (!_Extensions.Contains(extension.ToLower()))
+                {
+                    return new ValidationResult(GetErrorMessage());
+                }
+            }
+
+            return ValidationResult.Success;
+        }
+
+      
+
+        public string GetErrorMessage()
+        {
+            return $"This photo extension is not allowed!";
         }
     }
 }

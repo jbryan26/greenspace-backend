@@ -19,6 +19,36 @@ namespace TodoApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("TodoApi.Models.Attending", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Avrequirements")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Catering")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("RequestedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RequestorEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequestorName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("attendingNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Attendings");
+                });
+
             modelBuilder.Entity("TodoApi.Models.Building", b =>
                 {
                     b.Property<long>("Id")
@@ -286,6 +316,24 @@ namespace TodoApi.Migrations
                     b.ToTable("ReservationModels");
                 });
 
+            modelBuilder.Entity("TodoApi.Models.ResourceType", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Plural")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ResourceTypes");
+                });
+
             modelBuilder.Entity("TodoApi.Models.Room", b =>
                 {
                     b.Property<long>("Id")
@@ -302,9 +350,6 @@ namespace TodoApi.Migrations
                     b.Property<bool>("HasDualMonitors")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsCornerDesk")
                         .HasColumnType("bit");
 
@@ -314,8 +359,8 @@ namespace TodoApi.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ResourceType")
-                        .HasColumnType("int");
+                    b.Property<long?>("ResourceTypeId")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("SeatingCapacity")
                         .HasColumnType("bigint");
@@ -323,6 +368,8 @@ namespace TodoApi.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FloorId");
+
+                    b.HasIndex("ResourceTypeId");
 
                     b.ToTable("Rooms");
                 });
@@ -392,7 +439,7 @@ namespace TodoApi.Migrations
                         {
                             Id = -2L,
                             Email = "admin",
-                            PasswordHash = "$RESERVHASH$V1$10000$9irW0AwIIVe135XagkyQgYIdePmjvKZ5LCPIF8OZ+xruc1Mz",
+                            PasswordHash = "$RESERVHASH$V1$10000$vRoGbB/Q0TS2S6V3VsBnaexisIMmS6zsXbsVW9qnpAYQnoE/",
                             UserRole = 2
                         });
                 });
@@ -464,6 +511,10 @@ namespace TodoApi.Migrations
                         .HasForeignKey("FloorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("TodoApi.Models.ResourceType", "ResourceType")
+                        .WithMany()
+                        .HasForeignKey("ResourceTypeId");
                 });
 
             modelBuilder.Entity("TodoApi.Models.RoomFeaturesItem", b =>

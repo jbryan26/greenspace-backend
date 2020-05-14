@@ -15,7 +15,8 @@ namespace TodoApi.DTO
             CreateMap<Site, SiteDto>();
             CreateMap<Building, BuildingDto>();
             CreateMap<Floor, FloorDto>();
-            CreateMap<Room, RoomDto>();
+            CreateMap<Room, RoomDto>().ForMember(dest => dest.ResourceTypeName, opt => opt.MapFrom(src
+                => src.ResourceTypeId.HasValue ? src.ResourceType.Name : "room"));
             CreateMap<ReservationModel, ReservationDto>();
 
             // Add other CreateMap’s for any other configs

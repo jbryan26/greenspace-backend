@@ -30,6 +30,7 @@ namespace TodoApi.Controllers
         /// <param name="command"></param>
         /// <returns></returns>
         [HttpPost()]
+        [Route("NukeDb")]
         [Authorize(Policy = "OnlySuperAdmin")]
         //  [Authorize(Policy = "OnlySiteAdmin")]
 

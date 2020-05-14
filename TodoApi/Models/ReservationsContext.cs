@@ -29,7 +29,11 @@ namespace TodoApi.Models
 
         public DbSet<Site> Sites { get; set; }
 
-      //  public DbSet<FormFile> Images { get; set; }
+        public DbSet<ResourceType> ResourceTypes { get; set; }
+
+        public DbSet<Attending> Attendings { get; set; }
+
+        //  public DbSet<FormFile> Images { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,8 +1,11 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace TodoApi.Models
 {
@@ -12,7 +15,11 @@ namespace TodoApi.Models
 
        
         public string? Name { get; set; }
-        public ResourceType ResourceType { get; set; }
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        public ResourceType? ResourceType { get; set; }
+
+        public long? ResourceTypeId { get; set; }
         public List<RoomFeaturesItem> RoomFeatures { get; set; }
         public bool IsCornerDesk { get; set; }
         public bool HasDockingStation { get; set; }
@@ -26,10 +33,10 @@ namespace TodoApi.Models
 
 
 
-        public string ImageUrl { get; set; }
+        //public string ImageUrl { get; set; }
 
         public ICollection<FieldValue> FieldValues { get; set; }
 
-        public ICollection<Image> Images { get; set; }
+        public ICollection<Image> Images { get; set; } = new List<Image>();
     }
 }

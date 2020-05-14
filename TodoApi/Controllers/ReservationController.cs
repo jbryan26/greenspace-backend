@@ -123,11 +123,13 @@ namespace TodoApi.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<ReservationModel>> DeleteReservationModel(long id)
         {
-            var reservationModel = await _context.ReservationModels.FindAsync(id);
+            var reservationModel =  _context.ReservationModels.Include(model => model.FoodDetailItems).FirstOrDefault(model => model.Id == id);
             if (reservationModel == null)
             {
                 return NotFound();
             }
+
+            _context.RemoveRange(reservationModel.FoodDetailItems);
 
             _context.ReservationModels.Remove(reservationModel);
             await _context.SaveChangesAsync();
